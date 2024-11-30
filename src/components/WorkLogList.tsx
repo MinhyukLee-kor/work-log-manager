@@ -31,12 +31,14 @@ export default function WorkLogList({ dateRange }: Props) {
   const router = useRouter()
 
   const formatDate = (dateStr: string) => {
-    const date = new Date(dateStr)
-    return date.toLocaleDateString('ko-KR', {
-      year: '2-digit',
-      month: '2-digit',
-      day: '2-digit'
-    }).replace(/\. /g, '-').replace('.', '')
+    try {
+      // 날짜 문자열을 직접 파싱
+      const [year, month, day] = dateStr.substring(0, 10).split('-')
+      return `${year.substring(2)}-${month}-${day}`
+    } catch (error) {
+      console.error('날짜 형식 에러:', dateStr, error)
+      return dateStr
+    }
   }
 
   const formatTime = (timeStr: string) => {
@@ -85,6 +87,40 @@ export default function WorkLogList({ dateRange }: Props) {
 
   const groupedWorkLogs = groupWorkLogsByDate(workLogs)
   const dates = Object.keys(groupedWorkLogs).sort().reverse()
+
+  // WorkLogList 컴포넌트에 삭제 함수 추가
+  const handleDelete = async (date: string) => {
+    if (!confirm(`${formatDate(date)} 날짜의 모든 업무 내역을 삭제하시겠습니까?`)) {
+      return
+    }
+
+    try {
+      const session = getSession()
+      console.log('삭제할 날짜:', date);  // 디버깅용
+      
+      const response = await axios.delete('/api/work-logs/date', {
+        params: {
+          username: session?.username,
+          date: date.split('T')[0]  // 날짜 부분만 사용
+        }
+      })
+
+      if (response.data.success) {
+        const newWorkLogs = workLogs.filter(log => log.date !== date)
+        setWorkLogs(newWorkLogs)
+        alert('삭제되었습니다.')
+      } else {
+        alert('삭제 실패: ' + response.data.message)
+      }
+    } catch (error) {
+      console.error('삭제 에러:', error)
+      if (axios.isAxiosError(error) && error.response) {
+        alert('삭제 실패: ' + error.response.data.message)
+      } else {
+        alert('삭제 중 오류가 발생했습니다.')
+      }
+    }
+  }
 
   return (
     <div className="overflow-hidden">
@@ -147,7 +183,7 @@ export default function WorkLogList({ dateRange }: Props) {
                             <PencilIcon className="h-4 w-4" />
                           </button>
                           <button
-                            onClick={() => {/* 삭제 기능 구현 예정 */}}
+                            onClick={() => handleDelete(log.date)}
                             className="p-1 text-red-600 hover:text-red-900 rounded-full hover:bg-red-100"
                             title="삭제"
                           >
@@ -216,7 +252,7 @@ export default function WorkLogList({ dateRange }: Props) {
                             <PencilIcon className="h-4 w-4" />
                           </button>
                           <button
-                            onClick={() => {/* 삭제 기능 구현 예정 */}}
+                            onClick={() => handleDelete(log.date)}
                             className="p-1 text-red-600 hover:text-red-900 rounded-full hover:bg-red-100"
                             title="삭제"
                           >

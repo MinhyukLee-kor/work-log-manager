@@ -13,7 +13,8 @@ export async function GET(request: Request) {
       host: process.env.DB_HOST,
       user: process.env.DB_USER,
       password: process.env.DB_PASSWORD,
-      database: process.env.DB_NAME
+      database: process.env.DB_NAME,
+      timezone: 'Asia/Seoul'
     })
 
     const [rows] = await connection.execute(
@@ -48,7 +49,8 @@ export async function POST(request: Request) {
       host: process.env.DB_HOST,
       user: process.env.DB_USER,
       password: process.env.DB_PASSWORD,
-      database: process.env.DB_NAME
+      database: process.env.DB_NAME,
+      timezone: 'Asia/Seoul'
     })
 
     // 트랜잭션 시작

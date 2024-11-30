@@ -4,26 +4,14 @@ import { useEffect } from 'react'
 import { useRouter } from 'next/navigation'
 import { isAuthenticated, getSession } from '@/utils/auth'
 
-export default function withAuth(Component: React.ComponentType, requiredRole?: string) {
-  return function ProtectedRoute(props: any) {
+export default function withAuth<P extends object>(Component: React.ComponentType<P>) {
+  return function ProtectedRoute(props: P) {
     const router = useRouter()
 
     useEffect(() => {
-      const checkAuth = () => {
-        if (!isAuthenticated()) {
-          router.push('/login')
-          return
-        }
-
-        if (requiredRole) {
-          const session = getSession()
-          if (session?.role !== requiredRole) {
-            router.push('/unauthorized')
-          }
-        }
+      if (!isAuthenticated()) {
+        router.push('/login')
       }
-
-      checkAuth()
     }, [router])
 
     return <Component {...props} />
