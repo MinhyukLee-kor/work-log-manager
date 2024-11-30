@@ -29,7 +29,6 @@ function EditWorkLogPage({ params }: Props) {
       try {
         setLoading(true)
         const session = getSession()
-        // 선택한 업무의 날짜에 해당하는 모든 업무 내역을 가져옴
         const response = await axios.get(`/api/work-logs/date/${params.id}`, {
           params: { username: session?.username }
         })
@@ -37,7 +36,7 @@ function EditWorkLogPage({ params }: Props) {
         if (response.data.success && response.data.workLogs) {
           const formattedLogs = response.data.workLogs.map((log: any) => ({
             id: log.id.toString(),
-            date: new Date(log.date).toISOString().split('T')[0],
+            date: log.date.split('T')[0],
             start_time: log.start_time.substring(0, 5),
             end_time: log.end_time.substring(0, 5),
             description: log.description
@@ -259,7 +258,7 @@ function EditWorkLogPage({ params }: Props) {
         </button>
       </div>
 
-      {/* 하단 고정 버튼 */}
+      {/* 하단 고 ���튼 */}
       <div className="fixed bottom-0 left-0 right-0 h-16 bg-white border-t border-gray-200 px-4 flex items-center justify-center">
         <button
           onClick={handleSubmit}
