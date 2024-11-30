@@ -4,6 +4,7 @@ import { useEffect, useState } from 'react'
 import axios from 'axios'
 import { getSession } from '@/utils/auth'
 import { PencilIcon, TrashIcon } from '@heroicons/react/24/outline'
+import { useRouter } from 'next/navigation'
 
 interface WorkLog {
   id: number
@@ -27,6 +28,7 @@ interface Props {
 export default function WorkLogList({ dateRange }: Props) {
   const [workLogs, setWorkLogs] = useState<WorkLog[]>([])
   const [loading, setLoading] = useState(false)
+  const router = useRouter()
 
   const formatDate = (dateStr: string) => {
     const date = new Date(dateStr)
@@ -135,22 +137,24 @@ export default function WorkLogList({ dateRange }: Props) {
                       {log.description}
                     </td>
                     <td className="px-2 py-4 text-right text-sm font-medium whitespace-nowrap">
-                      <div className="flex justify-end space-x-2">
-                        <button
-                          onClick={() => {/* 수정 기능 구현 예정 */}}
-                          className="p-1 text-blue-600 hover:text-blue-900 rounded-full hover:bg-blue-100"
-                          title="수정"
-                        >
-                          <PencilIcon className="h-4 w-4" />
-                        </button>
-                        <button
-                          onClick={() => {/* 삭제 기능 구현 예정 */}}
-                          className="p-1 text-red-600 hover:text-red-900 rounded-full hover:bg-red-100"
-                          title="삭제"
-                        >
-                          <TrashIcon className="h-4 w-4" />
-                        </button>
-                      </div>
+                      {index === 0 && (
+                        <div className="flex justify-end space-x-2">
+                          <button
+                            onClick={() => router.push(`/work-logs/edit/${log.id}`)}
+                            className="p-1 text-blue-600 hover:text-blue-900 rounded-full hover:bg-blue-100"
+                            title="수정"
+                          >
+                            <PencilIcon className="h-4 w-4" />
+                          </button>
+                          <button
+                            onClick={() => {/* 삭제 기능 구현 예정 */}}
+                            className="p-1 text-red-600 hover:text-red-900 rounded-full hover:bg-red-100"
+                            title="삭제"
+                          >
+                            <TrashIcon className="h-4 w-4" />
+                          </button>
+                        </div>
+                      )}
                     </td>
                   </tr>
                 ))
@@ -202,22 +206,24 @@ export default function WorkLogList({ dateRange }: Props) {
                       </p>
                     </td>
                     <td className="px-2 py-2 text-right text-sm font-medium whitespace-nowrap">
-                      <div className="flex justify-end space-x-1">
-                        <button
-                          onClick={() => {/* 수정 기능 구현 예정 */}}
-                          className="p-1 text-blue-600 hover:text-blue-900 rounded-full hover:bg-blue-100"
-                          title="수정"
-                        >
-                          <PencilIcon className="h-4 w-4" />
-                        </button>
-                        <button
-                          onClick={() => {/* 삭제 기능 구현 예정 */}}
-                          className="p-1 text-red-600 hover:text-red-900 rounded-full hover:bg-red-100"
-                          title="삭제"
-                        >
-                          <TrashIcon className="h-4 w-4" />
-                        </button>
-                      </div>
+                      {index === 0 && (
+                        <div className="flex justify-end space-x-1">
+                          <button
+                            onClick={() => router.push(`/work-logs/edit/${log.id}`)}
+                            className="p-1 text-blue-600 hover:text-blue-900 rounded-full hover:bg-blue-100"
+                            title="수정"
+                          >
+                            <PencilIcon className="h-4 w-4" />
+                          </button>
+                          <button
+                            onClick={() => {/* 삭제 기능 구현 예정 */}}
+                            className="p-1 text-red-600 hover:text-red-900 rounded-full hover:bg-red-100"
+                            title="삭제"
+                          >
+                            <TrashIcon className="h-4 w-4" />
+                          </button>
+                        </div>
+                      )}
                     </td>
                   </tr>
                 ))
