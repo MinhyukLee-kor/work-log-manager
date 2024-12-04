@@ -1,7 +1,11 @@
 interface UserSession {
   username: string;
+  nickname: string;
   role: string;
-  token?: string;
+  rights: string;
+  duty: string;
+  userId: number;
+  home: string;
 }
 
 export const setSession = (data: UserSession) => {

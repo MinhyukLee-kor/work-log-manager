@@ -1,9 +1,10 @@
 'use client'
 
+import { useEffect } from 'react'
 import { useForm } from 'react-hook-form'
 import { useRouter } from 'next/navigation'
 import axios from 'axios'
-import { setSession } from '@/utils/auth'
+import { setSession, isAuthenticated } from '@/utils/auth'
 
 interface LoginForm {
   username: string
@@ -14,22 +15,34 @@ export default function LoginPage() {
   const router = useRouter()
   const { register, handleSubmit, formState: { errors } } = useForm<LoginForm>()
 
+  // 이미 로그인한 사용자는 대시보드로 리다이렉션
+  useEffect(() => {
+    if (isAuthenticated()) {
+      router.push('/dashboard')
+    }
+  }, [router])
+
   const onSubmit = async (data: LoginForm) => {
     try {
       const response = await axios.post('/api/auth/login', data)
       if (response.data.success) {
         setSession({
           username: data.username,
-          role: response.data.role
+          nickname: response.data.user.nickname,
+          role: response.data.user.role,
+          rights: response.data.user.rights,
+          duty: response.data.user.duty,
+          userId: response.data.user.userId,
+          home: response.data.user.home
         })
         
-        if (response.data.role === 'ADMIN') {
+        if (response.data.user.passwordExpired === '1') {
+          router.push('/change-password')
+        } else if (response.data.user.role === 'ADMIN') {
           router.push('/admin')
         } else {
-          router.push('/dashboard')
+          router.push('/dashboard')  // 항상 대시보드로 이동
         }
-      } else {
-        alert(response.data.message)
       }
     } catch (error) {
       if (axios.isAxiosError(error) && error.response) {

@@ -1,11 +1,17 @@
 'use client'
 
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { useRouter } from 'next/navigation'
 import withAuth from '@/components/withAuth'
 import { PlusIcon, TrashIcon } from '@heroicons/react/24/outline'
 import axios from 'axios'
 import { getSession } from '@/utils/auth'
+
+interface WorkType {
+  BIZ_TP: string
+  BIZ_CD: string
+  BIZ_NM: string
+}
 
 interface WorkLogEntry {
   id: string  // 임시 ID (프론트엔드용)
@@ -13,17 +19,38 @@ interface WorkLogEntry {
   start_time: string
   end_time: string
   description: string
+  bizType: string    // 추가
+  bizCode: string    // 추가
 }
 
 function CreateWorkLogPage() {
   const router = useRouter()
+  const [workTypes, setWorkTypes] = useState<WorkType[]>([])
   const [workLogs, setWorkLogs] = useState<WorkLogEntry[]>([{
     id: '1',
     date: new Date().toISOString().split('T')[0],
     start_time: '09:00',
     end_time: '09:00',
-    description: ''
+    description: '',
+    bizType: '',
+    bizCode: ''
   }])
+
+  // 업무 종류 조회
+  useEffect(() => {
+    const fetchWorkTypes = async () => {
+      try {
+        const response = await axios.get('/api/work-types')
+        if (response.data.success) {
+          setWorkTypes(response.data.workTypes)
+        }
+      } catch (error) {
+        console.error('업무 종류 조회 에러:', error)
+      }
+    }
+
+    fetchWorkTypes()
+  }, [])
 
   const addNewEntry = () => {
     setWorkLogs([
@@ -33,7 +60,9 @@ function CreateWorkLogPage() {
         date: workLogs[0].date,
         start_time: '09:00',
         end_time: '09:00',
-        description: ''
+        description: '',
+        bizType: '',
+        bizCode: ''
       }
     ])
   }
@@ -52,9 +81,28 @@ function CreateWorkLogPage() {
 
   const handleSubmit = async () => {
     try {
+      // 제출 전 데이터 확인
+      console.log('Submitting workLogs:', workLogs)
+
+      // 필수 입력값 검증
+      const hasEmptyFields = workLogs.some(log => 
+        !log.date || !log.start_time || !log.end_time || !log.bizCode || !log.bizType
+      )
+
+      if (hasEmptyFields) {
+        alert('날짜, 시간, 업무 종류는 필수 입력 항목입니다.')
+        return
+      }
+
       const session = getSession()
+      if (!session?.userId) {
+        alert('로그인 정보를 찾을 수 없습니다.')
+        router.push('/login')
+        return
+      }
+
       const response = await axios.post('/api/work-logs', {
-        username: session?.username,
+        username: session.userId,
         workLogs: workLogs
       })
 
@@ -169,18 +217,59 @@ function CreateWorkLogPage() {
                   />
                   <TimeAdjustChips logId={log.id} field="end_time" />
                 </div>
-              </div>
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">
-                  업무 내용
-                </label>
-                <textarea
-                  value={log.description}
-                  onChange={(e) => updateEntry(log.id, 'description', e.target.value)}
-                  rows={2}
-                  className="w-full rounded-md border-2 border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 text-black hover:border-gray-400"
-                  placeholder="업무 내용을 입력하세요"
-                />
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">
+                    업무 종류 <span className="text-red-500">*</span>
+                  </label>
+                  <select
+                    value={log.bizCode}
+                    onChange={(e) => {
+                      const selected = workTypes.find(t => t.BIZ_CD === e.target.value)
+                      if (selected) {
+                        setWorkLogs(workLogs.map(wl => 
+                          wl.id === log.id 
+                            ? { 
+                                ...wl, 
+                                bizType: selected.BIZ_TP,
+                                bizCode: selected.BIZ_CD
+                              }
+                            : wl
+                        ))
+                      } else {
+                        setWorkLogs(workLogs.map(wl => 
+                          wl.id === log.id 
+                            ? { 
+                                ...wl, 
+                                bizType: '',
+                                bizCode: ''
+                              }
+                            : wl
+                        ))
+                      }
+                    }}
+                    className="w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500"
+                    required
+                  >
+                    <option value="">선택하세요</option>
+                    {workTypes.map((type) => (
+                      <option key={type.BIZ_CD} value={type.BIZ_CD}>
+                        {type.BIZ_NM}
+                      </option>
+                    ))}
+                  </select>
+                </div>
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">
+                    업무 내용
+                  </label>
+                  <textarea
+                    value={log.description}
+                    onChange={(e) => updateEntry(log.id, 'description', e.target.value)}
+                    rows={2}
+                    className="w-full rounded-md border-2 border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 text-black hover:border-gray-400"
+                    placeholder="업무 내용을 입력하세요"
+                  />
+                </div>
               </div>
               {workLogs.length > 1 && (
                 <div className="mt-2 flex justify-end">
@@ -206,7 +295,7 @@ function CreateWorkLogPage() {
         </button>
       </div>
 
-      {/* 하단 고정 버튼 */}
+      {/* 하단 고�� 버튼 */}
       <div className="fixed bottom-0 left-0 right-0 h-16 bg-white border-t border-gray-200 px-4 flex items-center justify-center">
         <button
           onClick={handleSubmit}

@@ -1,14 +1,56 @@
 'use client'
 
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
+import { useRouter } from 'next/navigation'
 import withAuth from '@/components/withAuth'
+import axios from 'axios'
+import { getSession } from '@/utils/auth'
 import LogoutButton from '@/components/LogoutButton'
 import WorkLogList from '@/components/WorkLogList'
 import DateRangePicker from '@/components/DateRangePicker'
-import { PlusIcon } from '@heroicons/react/24/outline'
-import { useRouter } from 'next/navigation'
+import { PlusIcon, MagnifyingGlassIcon } from '@heroicons/react/24/outline'
 
 function DashboardPage() {
+  const router = useRouter()
+  const [workLogs, setWorkLogs] = useState([])
+  const [loading, setLoading] = useState(true)
+
+  const fetchWorkLogs = async (start: Date, end: Date) => {
+    try {
+      setLoading(true)
+      const session = getSession()
+      if (!session?.userId) {
+        alert('로그인 정보를 찾을 수 없습니다.')
+        router.push('/login')
+        return
+      }
+
+      const formatDate = (date: Date) => {
+        const year = date.getFullYear()
+        const month = String(date.getMonth() + 1).padStart(2, '0')
+        const day = String(date.getDate()).padStart(2, '0')
+        return `${year}-${month}-${day}`
+      }
+
+      const response = await axios.get('/api/work-logs', {
+        params: {
+          userId: session.userId,
+          startDate: formatDate(start),
+          endDate: formatDate(end)
+        }
+      })
+
+      if (response.data.success) {
+        setWorkLogs(response.data.workLogs)
+      }
+    } catch (error) {
+      console.error('업무 내역 조회 에러:', error)
+      alert('업무 내역을 불러오는데 실패했습니다.')
+    } finally {
+      setLoading(false)
+    }
+  }
+
   const today = new Date()
   const startOfMonth = new Date(today.getFullYear(), today.getMonth(), 1)
   const endOfMonth = new Date(today.getFullYear(), today.getMonth() + 1, 0)
@@ -21,7 +63,10 @@ function DashboardPage() {
     endDate: endOfMonth
   })
 
-  const router = useRouter()
+  // 초기 데이터 로딩
+  useEffect(() => {
+    fetchWorkLogs(startOfMonth, endOfMonth)
+  }, [])
 
   return (
     <div className="min-h-screen bg-white relative pb-16">
@@ -34,14 +79,31 @@ function DashboardPage() {
         </div>
 
         <div className="bg-gray-50 rounded-lg p-3 mb-3 shadow-sm">
-          <DateRangePicker
-            dateRange={dateRange}
-            onChange={setDateRange}
-          />
+          <div className="flex items-end space-x-4">
+            <div className="flex-grow">
+              <DateRangePicker
+                dateRange={dateRange}
+                onChange={(newDateRange) => {
+                  setDateRange(newDateRange)
+                }}
+              />
+            </div>
+            <button
+              onClick={() => fetchWorkLogs(dateRange.startDate, dateRange.endDate)}
+              className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 flex items-center"
+            >
+              <MagnifyingGlassIcon className="h-5 w-5 mr-2" />
+              <span>조회</span>
+            </button>
+          </div>
         </div>
 
         <div className="bg-white rounded-lg shadow">
-          <WorkLogList dateRange={dateRange} />
+          <WorkLogList 
+            workLogs={workLogs} 
+            loading={loading}
+            dateRange={dateRange} 
+          />
         </div>
       </div>
 
