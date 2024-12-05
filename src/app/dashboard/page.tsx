@@ -32,7 +32,7 @@ function DashboardPage() {
         return `${year}-${month}-${day}`
       }
 
-      const response = await axios.get('/api/work-logs', {
+      const response = await axios.get('/worklog/api/work-logs', {
         params: {
           userId: session.userId,
           startDate: formatDate(start),

@@ -36,7 +36,7 @@ function EditWorkLogPage({ params }: Props) {
   useEffect(() => {
     const fetchWorkTypes = async () => {
       try {
-        const response = await axios.get('/api/work-types')
+        const response = await axios.get('/worklog/api/work-types')
         if (response.data.success) {
           setWorkTypes(response.data.workTypes)
         }
@@ -54,7 +54,7 @@ function EditWorkLogPage({ params }: Props) {
       try {
         setLoading(true)
         const session = getSession()
-        const response = await axios.get(`/api/work-logs/${params.id}`, {
+        const response = await axios.get(`/worklog/api/work-logs/${params.id}`, {
           params: { userId: session?.userId }
         })
         
@@ -87,7 +87,7 @@ function EditWorkLogPage({ params }: Props) {
         return
       }
 
-      const response = await axios.put(`/api/work-logs/${params.id}`, {
+      const response = await axios.put(`/worklog/api/work-logs/${params.id}`, {
         userId: session.userId,
         workLog
       })

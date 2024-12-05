@@ -40,7 +40,7 @@ function CreateWorkLogPage() {
   useEffect(() => {
     const fetchWorkTypes = async () => {
       try {
-        const response = await axios.get('/api/work-types')
+        const response = await axios.get('/worklog/api/work-types')
         if (response.data.success) {
           setWorkTypes(response.data.workTypes)
         }
@@ -101,7 +101,7 @@ function CreateWorkLogPage() {
         return
       }
 
-      const response = await axios.post('/api/work-logs', {
+      const response = await axios.post('/worklog/api/work-logs', {
         username: session.userId,
         workLogs: workLogs
       })

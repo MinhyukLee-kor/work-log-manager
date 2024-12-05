@@ -9,7 +9,7 @@ export default function LogoutButton() {
 
   const handleLogout = async () => {
     try {
-      await axios.post('/api/auth/logout')
+      await axios.post('/worklog/api/auth/logout')
       clearSession()
       router.push('/login')
     } catch (error) {

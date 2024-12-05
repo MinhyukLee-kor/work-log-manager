@@ -40,7 +40,7 @@ export default function WorkLogList({ workLogs, loading, dateRange }: WorkLogLis
         return
       }
 
-      const response = await axios.delete(`/api/work-logs/${id}`, {
+      const response = await axios.delete(`/worklog/api/work-logs/${id}`, {
         params: { userId: session.userId }
       })
 

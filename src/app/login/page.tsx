@@ -24,7 +24,7 @@ export default function LoginPage() {
 
   const onSubmit = async (data: LoginForm) => {
     try {
-      const response = await axios.post('/api/auth/login', data)
+      const response = await axios.post('/worklog/api/auth/login', data)
       if (response.data.success) {
         setSession({
           username: data.username,
