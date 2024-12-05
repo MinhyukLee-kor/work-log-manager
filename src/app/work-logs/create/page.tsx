@@ -6,6 +6,7 @@ import withAuth from '@/components/withAuth'
 import { PlusIcon, TrashIcon } from '@heroicons/react/24/outline'
 import axios from 'axios'
 import { getSession } from '@/utils/auth'
+import { validateTimeOverlaps } from '@/utils/workTime'
 
 interface WorkType {
   BIZ_TP: string
@@ -91,39 +92,43 @@ function CreateWorkLogPage() {
 
   const handleSubmit = async () => {
     try {
-      // 제출 전 데이터 확인
-      console.log('Submitting workLogs:', workLogs)
-
       // 필수 입력값 검증
       const hasEmptyFields = workLogs.some(log => 
         !log.date || !log.start_time || !log.end_time || !log.bizCode || !log.bizType
-      )
+      );
 
       if (hasEmptyFields) {
-        alert('날짜, 시간, 업무 종류는 필수 입력 항목입니다.')
-        return
+        alert('날짜, 시간, 업무 종류는 필수 입력 항목입니다.');
+        return;
       }
 
-      const session = getSession()
+      // 프론트엔드 시간 중복 검증
+      const overlapCheck = validateTimeOverlaps(workLogs);
+      if (overlapCheck.isOverlapping) {
+        alert(overlapCheck.message);
+        return;
+      }
+
+      const session = getSession();
       if (!session?.userId) {
-        alert('로그인 정보를 찾을 수 없습니다.')
-        router.push('/login')
-        return
+        alert('로그인 정보를 찾을 수 없습니다.');
+        router.push('/login');
+        return;
       }
 
       const response = await axios.post('/worklog/api/work-logs', {
         username: session.userId,
         workLogs: workLogs
-      })
+      });
 
       if (response.data.success) {
-        router.push('/dashboard')
+        router.push('/dashboard');
       }
     } catch (error: any) {
-      console.error('업무 등록 에러:', error)
-      alert(error.response?.data?.message || '업무 등록 중 오류가 발생했습니다.')
+      console.error('업무 등록 에러:', error);
+      alert(error.response?.data?.message || '업무 등록 중 오류가 발생했습니다.');
     }
-  }
+  };
 
   const adjustTime = (id: string, field: 'start_time' | 'end_time', minutes: number) => {
     setWorkLogs(workLogs.map(log => {

@@ -1,6 +1,6 @@
 import { NextResponse } from 'next/server'
 import mysql from 'mysql2/promise'
-import { getTotalWorkHours, validateWorkHours } from '@/utils/workTime'
+import { getTotalWorkHours, validateWorkHours, checkDBTimeOverlap } from '@/utils/workTime'
 
 export async function GET(request: Request) {
   const { searchParams } = new URL(request.url)
@@ -67,22 +67,37 @@ export async function POST(request: Request) {
       timezone: '+09:00'
     })
 
-    // 각 업무 로그에 대해 시간 검증
+    // 각 업무 로그에 대해 검증
     for (const log of workLogs) {
+      // 1. 먼저 시간 중복 검증
+      const overlapCheck = await checkDBTimeOverlap(
+        connection,
+        Number(userId),
+        log.date,
+        log.start_time,
+        log.end_time
+      );
+
+      if (overlapCheck.isOverlapping) {
+        return NextResponse.json(
+          { success: false, message: overlapCheck.message },
+          { status: 400 }
+        );
+      }
+
+      // 2. 그 다음 총 업무 시간 검증
       const currentHours = await getTotalWorkHours(connection, Number(userId), log.date);
       const validation = validateWorkHours(currentHours, log.start_time, log.end_time);
       
       if (!validation.isValid) {
         return NextResponse.json(
-          { 
-            success: false, 
-            message: validation.message
-          },
+          { success: false, message: validation.message },
           { status: 400 }
-        )
+        );
       }
     }
 
+    // 모든 검증을 통과한 경우에만 트랜잭션 시작
     await connection.beginTransaction()
 
     for (const log of workLogs) {

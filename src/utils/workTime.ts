@@ -52,3 +52,74 @@ export function validateWorkHours(
       : ''
   };
 }
+
+interface TimeOverlapResult {
+  isOverlapping: boolean;
+  message: string;
+}
+
+// 두 시간 범위가 겹치는지 확인하는 함수
+export function checkTimeOverlap(
+  start1: string,
+  end1: string,
+  start2: string,
+  end2: string
+): boolean {
+  return (start1 < end2 && end1 > start2);
+}
+
+// 프론트엔드에서 여러 업무 시간이 겹치는지 확인
+export function validateTimeOverlaps(workLogs: any[]): TimeOverlapResult {
+  for (let i = 0; i < workLogs.length; i++) {
+    for (let j = i + 1; j < workLogs.length; j++) {
+      if (workLogs[i].date === workLogs[j].date) {
+        if (checkTimeOverlap(
+          workLogs[i].start_time,
+          workLogs[i].end_time,
+          workLogs[j].start_time,
+          workLogs[j].end_time
+        )) {
+          return {
+            isOverlapping: true,
+            message: `업무 시간이 겹칩니다: ` +
+              `(${workLogs[i].start_time}-${workLogs[i].end_time})와 ` +
+              `(${workLogs[j].start_time}-${workLogs[j].end_time})`
+          };
+        }
+      }
+    }
+  }
+  return { isOverlapping: false, message: '' };
+}
+
+// DB에서 겹치는 시간이 있는지 확인
+export async function checkDBTimeOverlap(
+  connection: Connection,
+  userId: number,
+  date: string,
+  startTime: string,
+  endTime: string,
+  excludeId?: number
+): Promise<TimeOverlapResult> {
+  const [rows]: any = await connection.execute(
+    `SELECT DATE_FORMAT(ST_DTM, '%H:%i') as start_time,
+            DATE_FORMAT(ED_DTM, '%H:%i') as end_time
+     FROM CM_TIMESHEET_MGR 
+     WHERE LOGIN_ID = ? 
+     AND DATE(ST_DTM) = ?
+     ${excludeId ? 'AND TIMSHEET_MGR_ID != ?' : ''}`,
+    excludeId ? [userId, date, excludeId] : [userId, date]
+  );
+
+  for (const row of rows) {
+    if (checkTimeOverlap(startTime, endTime, row.start_time, row.end_time)) {
+      return {
+        isOverlapping: true,
+        message: `입력하신 시간(${startTime}-${endTime})이 ` +
+                `기존 업무 시간(${row.start_time}-${row.end_time})과 겹칩니다.`
+      };
+    }
+  }
+
+  return { isOverlapping: false, message: '' };
+}
