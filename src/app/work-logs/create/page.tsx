@@ -6,7 +6,7 @@ import withAuth from '@/components/withAuth'
 import { PlusIcon, TrashIcon } from '@heroicons/react/24/outline'
 import axios from 'axios'
 import { getSession } from '@/utils/auth'
-import { validateTimeOverlaps } from '@/utils/workTime'
+import { validateTimeOverlaps, validateStartEndTime } from '@/utils/workTime'
 
 interface WorkType {
   BIZ_TP: string
@@ -79,9 +79,13 @@ function CreateWorkLogPage() {
       if (log.id === id) {
         const updatedLog = { ...log, [field]: value };
         
-        // 시작 시간이 변경되고, 종료 시간보다 늦을 경우
+        // 시작 시간이 종료 시간보다 늦을 경우 종료 시간을 시작 시간으로 설정
         if (field === 'start_time' && value > updatedLog.end_time) {
           updatedLog.end_time = value;
+        }
+        // 종료 시간이 시작 시간보다 빠를 경우 시작 시간으로 설정
+        if (field === 'end_time' && value < updatedLog.start_time) {
+          updatedLog.end_time = updatedLog.start_time;
         }
         
         return updatedLog;
@@ -100,6 +104,15 @@ function CreateWorkLogPage() {
       if (hasEmptyFields) {
         alert('날짜, 시간, 업무 종류는 필수 입력 항목입니다.');
         return;
+      }
+
+      // 시작/종료 시간 검증
+      for (const log of workLogs) {
+        const timeValidation = validateStartEndTime(log.start_time, log.end_time);
+        if (!timeValidation.isValid) {
+          alert(timeValidation.message);
+          return;
+        }
       }
 
       // 프론트엔드 시간 중복 검증
@@ -138,11 +151,21 @@ function CreateWorkLogPage() {
         date.setHours(hours, mins + minutes);
         
         const newTime = `${String(date.getHours()).padStart(2, '0')}:${String(date.getMinutes()).padStart(2, '0')}`;
-        const updatedLog = { ...log, [field]: newTime };
+        const updatedLog = { ...log };
 
-        // 시작 시간이 변경되고, 종료 시간보다 늦을 경우
-        if (field === 'start_time' && newTime > updatedLog.end_time) {
-          updatedLog.end_time = newTime;
+        if (field === 'start_time') {
+          if (newTime > updatedLog.end_time) {
+            updatedLog.start_time = newTime;
+            updatedLog.end_time = newTime;
+          } else {
+            updatedLog.start_time = newTime;
+          }
+        } else { // end_time
+          if (newTime < updatedLog.start_time) {
+            updatedLog.end_time = updatedLog.start_time;
+          } else {
+            updatedLog.end_time = newTime;
+          }
         }
 
         return updatedLog;
@@ -267,12 +290,12 @@ function CreateWorkLogPage() {
                         ))
                       }
                     }}
-                    className="w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500"
+                    className="w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 text-black [&>option]:text-black"
                     required
                   >
-                    <option value="">선택하세요</option>
+                    <option value="" className="text-black">선택하세요</option>
                     {workTypes.map((type) => (
-                      <option key={type.BIZ_CD} value={type.BIZ_CD}>
+                      <option key={type.BIZ_CD} value={type.BIZ_CD} className="text-black">
                         {type.BIZ_NM}
                       </option>
                     ))}

@@ -123,3 +123,15 @@ export async function checkDBTimeOverlap(
 
   return { isOverlapping: false, message: '' };
 }
+
+// 시작 시간이 종료 시간보다 늦은지 검사하는 함수
+export function validateStartEndTime(startTime: string, endTime: string): ValidationResult {
+  if (startTime > endTime) {
+    return {
+      isValid: false,
+      totalHours: 0,
+      message: '종료 시간은 시작 시간보다 빠를 수 없습니다.'
+    };
+  }
+  return { isValid: true, totalHours: 0, message: '' };
+}

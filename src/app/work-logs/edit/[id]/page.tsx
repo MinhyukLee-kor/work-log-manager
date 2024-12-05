@@ -5,6 +5,7 @@ import { useRouter } from 'next/navigation'
 import withAuth from '@/components/withAuth'
 import axios from 'axios'
 import { getSession } from '@/utils/auth'
+import { validateStartEndTime } from '@/utils/workTime'
 
 interface WorkLog {
   id: string
@@ -78,7 +79,14 @@ function EditWorkLogPage({ params }: Props) {
 
   const handleSubmit = async () => {
     try {
-      if (!workLog) return
+      if (!workLog) return;
+
+      // 시작/종료 시간 검증
+      const timeValidation = validateStartEndTime(workLog.start_time, workLog.end_time);
+      if (!timeValidation.isValid) {
+        alert(timeValidation.message);
+        return;
+      }
 
       const session = getSession()
       if (!session?.userId) {
@@ -101,6 +109,28 @@ function EditWorkLogPage({ params }: Props) {
     }
   }
 
+  const handleTimeChange = (field: 'start_time' | 'end_time', value: string) => {
+    if (!workLog) return;
+
+    if (field === 'start_time' && value > workLog.end_time) {
+      setWorkLog({
+        ...workLog,
+        start_time: value,
+        end_time: value
+      });
+    } else if (field === 'end_time' && value < workLog.start_time) {
+      setWorkLog({
+        ...workLog,
+        end_time: workLog.start_time
+      });
+    } else {
+      setWorkLog({
+        ...workLog,
+        [field]: value
+      });
+    }
+  };
+
   const adjustTime = (field: 'start_time' | 'end_time', minutes: number) => {
     if (!workLog) return;
     
@@ -110,18 +140,31 @@ function EditWorkLogPage({ params }: Props) {
     
     const newTime = `${String(date.getHours()).padStart(2, '0')}:${String(date.getMinutes()).padStart(2, '0')}`;
     
-    // 시작 시간이 변경되고, 종료 시간보다 늦을 경우
-    if (field === 'start_time' && newTime > workLog.end_time) {
-      setWorkLog({
-        ...workLog,
-        start_time: newTime,
-        end_time: newTime
-      });
-    } else {
-      setWorkLog({
-        ...workLog,
-        [field]: newTime
-      });
+    if (field === 'start_time') {
+      if (newTime > workLog.end_time) {
+        setWorkLog({
+          ...workLog,
+          start_time: newTime,
+          end_time: newTime
+        });
+      } else {
+        setWorkLog({
+          ...workLog,
+          start_time: newTime
+        });
+      }
+    } else { // end_time
+      if (newTime < workLog.start_time) {
+        setWorkLog({
+          ...workLog,
+          end_time: workLog.start_time
+        });
+      } else {
+        setWorkLog({
+          ...workLog,
+          end_time: newTime
+        });
+      }
     }
   };
 
@@ -193,21 +236,7 @@ function EditWorkLogPage({ params }: Props) {
               <input
                 type="time"
                 value={workLog.start_time}
-                onChange={(e) => {
-                  const newTime = e.target.value;
-                  if (newTime > workLog.end_time) {
-                    setWorkLog({
-                      ...workLog,
-                      start_time: newTime,
-                      end_time: newTime
-                    });
-                  } else {
-                    setWorkLog({
-                      ...workLog,
-                      start_time: newTime
-                    });
-                  }
-                }}
+                onChange={(e) => handleTimeChange('start_time', e.target.value)}
                 className="w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 text-black"
               />
               <TimeAdjustChips field="start_time" />
@@ -219,7 +248,7 @@ function EditWorkLogPage({ params }: Props) {
               <input
                 type="time"
                 value={workLog.end_time}
-                onChange={(e) => setWorkLog({ ...workLog, end_time: e.target.value })}
+                onChange={(e) => handleTimeChange('end_time', e.target.value)}
                 className="w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 text-black"
               />
               <TimeAdjustChips field="end_time" />
@@ -240,12 +269,12 @@ function EditWorkLogPage({ params }: Props) {
                     })
                   }
                 }}
-                className="w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500"
+                className="w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 text-black [&>option]:text-black"
                 required
               >
-                <option value="">선택하세요</option>
+                <option value="" className="text-black">선택하세요</option>
                 {workTypes.map((type) => (
-                  <option key={type.BIZ_CD} value={type.BIZ_CD}>
+                  <option key={type.BIZ_CD} value={type.BIZ_CD} className="text-black">
                     {type.BIZ_NM}
                   </option>
                 ))}
