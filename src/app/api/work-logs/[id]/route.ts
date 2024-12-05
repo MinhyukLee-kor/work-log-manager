@@ -1,5 +1,6 @@
 import { NextResponse } from 'next/server'
 import mysql from 'mysql2/promise'
+import { getTotalWorkHours, validateWorkHours } from '@/utils/workTime'
 
 // 단일 업무 조회
 export async function GET(
@@ -76,6 +77,25 @@ export async function PUT(
       database: process.env.DB_NAME,
       timezone: '+09:00'
     })
+
+    // 현재 업무를 제외한 총 업무 시간 계산
+    const currentHours = await getTotalWorkHours(
+      connection, 
+      Number(userId), 
+      workLog.date,
+      Number(params.id)
+    );
+
+    const validation = validateWorkHours(currentHours, workLog.start_time, workLog.end_time);
+    if (!validation.isValid) {
+      return NextResponse.json(
+        { 
+          success: false, 
+          message: validation.message
+        },
+        { status: 400 }
+      )
+    }
 
     const startDateTime = `${workLog.date} ${workLog.start_time}:00`
     const endDateTime = `${workLog.date} ${workLog.end_time}:00`

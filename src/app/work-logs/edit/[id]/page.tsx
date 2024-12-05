@@ -77,9 +77,9 @@ function EditWorkLogPage({ params }: Props) {
   }, [params.id, router])
 
   const handleSubmit = async () => {
-    if (!workLog) return
-
     try {
+      if (!workLog) return
+
       const session = getSession()
       if (!session?.userId) {
         alert('로그인 정보를 찾을 수 없습니다.')
@@ -89,17 +89,70 @@ function EditWorkLogPage({ params }: Props) {
 
       const response = await axios.put(`/worklog/api/work-logs/${params.id}`, {
         userId: session.userId,
-        workLog
+        workLog: workLog
       })
 
       if (response.data.success) {
         router.push('/dashboard')
       }
-    } catch (error) {
+    } catch (error: any) {
       console.error('업무 수정 에러:', error)
-      alert('업무 수정 중 오류가 발생했습니다.')
+      alert(error.response?.data?.message || '업무 수정 중 오류가 발생했습니다.')
     }
   }
+
+  const adjustTime = (field: 'start_time' | 'end_time', minutes: number) => {
+    if (!workLog) return;
+    
+    const [hours, mins] = workLog[field].split(':').map(Number);
+    const date = new Date();
+    date.setHours(hours, mins + minutes);
+    
+    const newTime = `${String(date.getHours()).padStart(2, '0')}:${String(date.getMinutes()).padStart(2, '0')}`;
+    
+    // 시작 시간이 변경되고, 종료 시간보다 늦을 경우
+    if (field === 'start_time' && newTime > workLog.end_time) {
+      setWorkLog({
+        ...workLog,
+        start_time: newTime,
+        end_time: newTime
+      });
+    } else {
+      setWorkLog({
+        ...workLog,
+        [field]: newTime
+      });
+    }
+  };
+
+  const TimeAdjustChips = ({ field }: { field: 'start_time' | 'end_time' }) => (
+    <div className="flex gap-1 mt-1">
+      <button
+        onClick={() => adjustTime(field, 60)}
+        className="px-2 py-0.5 text-xs rounded-md bg-blue-500 text-white hover:bg-blue-600 transition-colors"
+      >
+        +1h
+      </button>
+      <button
+        onClick={() => adjustTime(field, 30)}
+        className="px-2 py-0.5 text-xs rounded-md bg-blue-500 text-white hover:bg-blue-600 transition-colors"
+      >
+        +30m
+      </button>
+      <button
+        onClick={() => adjustTime(field, -60)}
+        className="px-2 py-0.5 text-xs rounded-md bg-blue-500 text-white hover:bg-blue-600 transition-colors"
+      >
+        -1h
+      </button>
+      <button
+        onClick={() => adjustTime(field, -30)}
+        className="px-2 py-0.5 text-xs rounded-md bg-blue-500 text-white hover:bg-blue-600 transition-colors"
+      >
+        -30m
+      </button>
+    </div>
+  );
 
   if (loading || !workLog) {
     return <div className="min-h-screen bg-white flex items-center justify-center">로딩중...</div>
@@ -140,9 +193,24 @@ function EditWorkLogPage({ params }: Props) {
               <input
                 type="time"
                 value={workLog.start_time}
-                onChange={(e) => setWorkLog({ ...workLog, start_time: e.target.value })}
+                onChange={(e) => {
+                  const newTime = e.target.value;
+                  if (newTime > workLog.end_time) {
+                    setWorkLog({
+                      ...workLog,
+                      start_time: newTime,
+                      end_time: newTime
+                    });
+                  } else {
+                    setWorkLog({
+                      ...workLog,
+                      start_time: newTime
+                    });
+                  }
+                }}
                 className="w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 text-black"
               />
+              <TimeAdjustChips field="start_time" />
             </div>
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-1">
@@ -154,6 +222,7 @@ function EditWorkLogPage({ params }: Props) {
                 onChange={(e) => setWorkLog({ ...workLog, end_time: e.target.value })}
                 className="w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 text-black"
               />
+              <TimeAdjustChips field="end_time" />
             </div>
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-1">

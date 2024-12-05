@@ -75,6 +75,32 @@ export default function WorkLogList({ workLogs, loading, dateRange }: WorkLogLis
     return <div className="p-4 text-center text-gray-500">등록된 업무가 없습니다.</div>
   }
 
+  // 날짜별로 업무 시간을 계산하는 함수
+  const calculateTotalHours = (logs: WorkLog[]) => {
+    let totalMinutes = 0;
+    
+    logs.forEach(log => {
+      const startTime = new Date(`${log.date} ${log.start_time}`);
+      const endTime = new Date(`${log.date} ${log.end_time}`);
+      const diffMinutes = (endTime.getTime() - startTime.getTime()) / (1000 * 60);
+      totalMinutes += diffMinutes;
+    });
+
+    const hours = Math.floor(totalMinutes / 60);
+    const minutes = Math.round(totalMinutes % 60);
+    
+    return `${hours}시간 ${minutes}분`;
+  };
+
+  // 날짜별로 업무 로그를 그룹화
+  const groupedLogs = workLogs.reduce((acc, log) => {
+    if (!acc[log.date]) {
+      acc[log.date] = [];
+    }
+    acc[log.date].push(log);
+    return acc;
+  }, {} as Record<string, WorkLog[]>);
+
   return (
     <div className="border rounded-lg shadow">
       <div className="overflow-x-auto">
@@ -100,7 +126,14 @@ export default function WorkLogList({ workLogs, loading, dateRange }: WorkLogLis
               return (
                 <tr key={log.id} className="hover:bg-gray-50">
                   <td className="text-center px-1 py-1 md:px-3 md:py-2 whitespace-nowrap text-sm text-gray-900 w-20 md:w-24">
-                    {showDate ? formatDate(log.date) : ''}
+                    {showDate && (
+                      <div>
+                        <div>{formatDate(log.date)}</div>
+                        <div className="text-xs text-gray-500 mt-1">
+                          {calculateTotalHours(groupedLogs[log.date])}
+                        </div>
+                      </div>
+                    )}
                   </td>
                   <td className="text-center hidden md:table-cell px-1 py-1 md:px-3 md:py-2 whitespace-nowrap text-sm text-gray-900 w-28">
                     {log.start_time} - {log.end_time}

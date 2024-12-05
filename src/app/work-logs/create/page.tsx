@@ -74,10 +74,20 @@ function CreateWorkLogPage() {
   }
 
   const updateEntry = (id: string, field: keyof WorkLogEntry, value: string) => {
-    setWorkLogs(workLogs.map(log => 
-      log.id === id ? { ...log, [field]: value } : log
-    ))
-  }
+    setWorkLogs(workLogs.map(log => {
+      if (log.id === id) {
+        const updatedLog = { ...log, [field]: value };
+        
+        // 시작 시간이 변경되고, 종료 시간보다 늦을 경우
+        if (field === 'start_time' && value > updatedLog.end_time) {
+          updatedLog.end_time = value;
+        }
+        
+        return updatedLog;
+      }
+      return log;
+    }));
+  };
 
   const handleSubmit = async () => {
     try {
@@ -109,27 +119,32 @@ function CreateWorkLogPage() {
       if (response.data.success) {
         router.push('/dashboard')
       }
-    } catch (error) {
+    } catch (error: any) {
       console.error('업무 등록 에러:', error)
-      alert('업무 등록 중 오류가 발생했습니다.')
+      alert(error.response?.data?.message || '업무 등록 중 오류가 발생했습니다.')
     }
   }
 
   const adjustTime = (id: string, field: 'start_time' | 'end_time', minutes: number) => {
     setWorkLogs(workLogs.map(log => {
       if (log.id === id) {
-        const [hours, mins] = log[field].split(':').map(Number)
-        const date = new Date()
-        date.setHours(hours, mins + minutes)
+        const [hours, mins] = log[field].split(':').map(Number);
+        const date = new Date();
+        date.setHours(hours, mins + minutes);
         
-        return {
-          ...log,
-          [field]: `${String(date.getHours()).padStart(2, '0')}:${String(date.getMinutes()).padStart(2, '0')}`
+        const newTime = `${String(date.getHours()).padStart(2, '0')}:${String(date.getMinutes()).padStart(2, '0')}`;
+        const updatedLog = { ...log, [field]: newTime };
+
+        // 시작 시간이 변경되고, 종료 시간보다 늦을 경우
+        if (field === 'start_time' && newTime > updatedLog.end_time) {
+          updatedLog.end_time = newTime;
         }
+
+        return updatedLog;
       }
-      return log
-    }))
-  }
+      return log;
+    }));
+  };
 
   const TimeAdjustChips = ({ logId, field }: { logId: string, field: 'start_time' | 'end_time' }) => (
     <div className="flex gap-1 mt-1">
@@ -295,7 +310,7 @@ function CreateWorkLogPage() {
         </button>
       </div>
 
-      {/* 하단 고�� 버튼 */}
+      {/* 하단 고 버튼 */}
       <div className="fixed bottom-0 left-0 right-0 h-16 bg-white border-t border-gray-200 px-4 flex items-center justify-center">
         <button
           onClick={handleSubmit}

@@ -1,5 +1,6 @@
 import { NextResponse } from 'next/server'
 import mysql from 'mysql2/promise'
+import { getTotalWorkHours, validateWorkHours } from '@/utils/workTime'
 
 export async function GET(request: Request) {
   const { searchParams } = new URL(request.url)
@@ -65,6 +66,22 @@ export async function POST(request: Request) {
       database: process.env.DB_NAME,
       timezone: '+09:00'
     })
+
+    // 각 업무 로그에 대해 시간 검증
+    for (const log of workLogs) {
+      const currentHours = await getTotalWorkHours(connection, Number(userId), log.date);
+      const validation = validateWorkHours(currentHours, log.start_time, log.end_time);
+      
+      if (!validation.isValid) {
+        return NextResponse.json(
+          { 
+            success: false, 
+            message: validation.message
+          },
+          { status: 400 }
+        )
+      }
+    }
 
     await connection.beginTransaction()
 
