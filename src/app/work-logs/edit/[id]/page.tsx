@@ -6,7 +6,7 @@ import withAuth from '@/components/withAuth'
 import axios from 'axios'
 import { getSession } from '@/utils/auth'
 import { validateStartEndTime } from '@/utils/workTime'
-import { ArrowLeftIcon, ClockIcon } from '@heroicons/react/24/outline'
+import { ArrowLeftIcon, ClockIcon, XMarkIcon } from '@heroicons/react/24/outline'
 
 interface WorkLog {
   id: string
@@ -180,6 +180,9 @@ function EditWorkLogPage({ params }: Props) {
     </div>
   );
 
+  // input 필드들의 공통 클래스
+  const inputClass = "w-full rounded-lg border-2 border-gray-200 shadow-sm focus:border-blue-500 focus:ring-blue-500 text-black"
+
   if (loading || !workLog) {
     return (
       <div className="min-h-screen bg-gray-100 flex items-center justify-center">
@@ -193,15 +196,14 @@ function EditWorkLogPage({ params }: Props) {
       <div className="bg-white shadow">
         <div className="max-w-3xl mx-auto px-4 sm:px-6 lg:px-8 py-4">
           <div className="flex justify-between items-center">
+            <h1 className="text-2xl font-bold text-gray-900">업무 수정</h1>
             <button
               onClick={() => router.back()}
-              className="text-gray-600 hover:text-gray-900 flex items-center"
+              className="text-gray-600 hover:text-gray-900 transition-colors"
+              title="취소"
             >
-              <ArrowLeftIcon className="h-5 w-5 mr-1" />
-              뒤로
+              <XMarkIcon className="h-6 w-6" />
             </button>
-            <h1 className="text-2xl font-bold text-gray-900">업무 수정</h1>
-            <div className="w-14"></div> {/* 우측 여백 맞추기 */}
           </div>
         </div>
       </div>
@@ -217,8 +219,38 @@ function EditWorkLogPage({ params }: Props) {
                 type="date"
                 value={workLog.date}
                 onChange={(e) => setWorkLog({ ...workLog, date: e.target.value })}
-                className="w-full rounded-lg border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 text-black"
+                className={inputClass}
               />
+            </div>
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-1">
+                시작 시간
+              </label>
+              <div className="relative">
+                <input
+                  type="time"
+                  value={workLog.start_time}
+                  onChange={(e) => handleTimeChange('start_time', e.target.value)}
+                  className={`${inputClass} pl-10`}
+                />
+                <ClockIcon className="absolute left-3 top-1/2 transform -translate-y-1/2 h-5 w-5 text-gray-400" />
+              </div>
+              <TimeAdjustChips field="start_time" />
+            </div>
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-1">
+                종료 시간
+              </label>
+              <div className="relative">
+                <input
+                  type="time"
+                  value={workLog.end_time}
+                  onChange={(e) => handleTimeChange('end_time', e.target.value)}
+                  className={`${inputClass} pl-10`}
+                />
+                <ClockIcon className="absolute left-3 top-1/2 transform -translate-y-1/2 h-5 w-5 text-gray-400" />
+              </div>
+              <TimeAdjustChips field="end_time" />
             </div>
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-1">
@@ -236,46 +268,16 @@ function EditWorkLogPage({ params }: Props) {
                     })
                   }
                 }}
-                className="w-full rounded-lg border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 text-black"
+                className={`${inputClass} [&>option]:text-black`}
                 required
               >
                 <option value="">선택하세요</option>
                 {workTypes.map((type) => (
-                  <option key={type.BIZ_CD} value={type.BIZ_CD}>
+                  <option key={type.BIZ_CD} value={type.BIZ_CD} className="text-black">
                     {type.BIZ_NM}
                   </option>
                 ))}
               </select>
-            </div>
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">
-                시작 시간
-              </label>
-              <div className="relative">
-                <input
-                  type="time"
-                  value={workLog.start_time}
-                  onChange={(e) => handleTimeChange('start_time', e.target.value)}
-                  className="w-full rounded-lg border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 text-black pl-10"
-                />
-                <ClockIcon className="absolute left-3 top-1/2 transform -translate-y-1/2 h-5 w-5 text-gray-400" />
-              </div>
-              <TimeAdjustChips field="start_time" />
-            </div>
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">
-                종료 시간
-              </label>
-              <div className="relative">
-                <input
-                  type="time"
-                  value={workLog.end_time}
-                  onChange={(e) => handleTimeChange('end_time', e.target.value)}
-                  className="w-full rounded-lg border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 text-black pl-10"
-                />
-                <ClockIcon className="absolute left-3 top-1/2 transform -translate-y-1/2 h-5 w-5 text-gray-400" />
-              </div>
-              <TimeAdjustChips field="end_time" />
             </div>
             <div className="md:col-span-2">
               <label className="block text-sm font-medium text-gray-700 mb-1">
@@ -285,7 +287,7 @@ function EditWorkLogPage({ params }: Props) {
                 value={workLog.description}
                 onChange={(e) => setWorkLog({ ...workLog, description: e.target.value })}
                 rows={4}
-                className="w-full rounded-lg border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 text-black"
+                className={`${inputClass} resize-none`}
                 placeholder="업무 내용을 입력하세요"
               />
             </div>

@@ -43,7 +43,7 @@ export default function DateRangePicker({ dateRange, onChange }: Props) {
           id="startDate"
           value={formatDate(dateRange.startDate)}
           onChange={(e) => handleDateChange('start', e.target.value)}
-          className="text-black mt-1 block w-full rounded-md border-gray-300 bg-white shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm"
+          className="w-full rounded-lg border-2 border-gray-200 shadow-sm focus:border-blue-500 focus:ring-blue-500 text-black"
         />
       </div>
       <div className="w-full sm:w-auto">
@@ -55,7 +55,7 @@ export default function DateRangePicker({ dateRange, onChange }: Props) {
           id="endDate"
           value={formatDate(dateRange.endDate)}
           onChange={(e) => handleDateChange('end', e.target.value)}
-          className="text-black mt-1 block w-full rounded-md border-gray-300 bg-white shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm"
+          className="w-full rounded-lg border-2 border-gray-200 shadow-sm focus:border-blue-500 focus:ring-blue-500 text-black"
         />
       </div>
     </div>

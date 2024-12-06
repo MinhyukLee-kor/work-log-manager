@@ -109,7 +109,7 @@ export default function WorkLogList({ workLogs, loading, dateRange }: WorkLogLis
     <div className="bg-white shadow-md rounded-lg overflow-hidden">
       <div className="overflow-auto" style={{ height: 'calc(100vh - 400px)' }}>
         <table className="min-w-full divide-y divide-gray-200">
-          <thead className="bg-gray-50 sticky top-0 z-10">
+          <thead className="bg-gray-200 sticky top-0 z-10">
             <tr>
               <th scope="col" className="px-1 py-1 text-center text-xs font-medium text-gray-500 uppercase tracking-wider">날짜</th>
               <th scope="col" className="hidden md:table-cell px-1 py-1 text-center text-xs font-medium text-gray-500 uppercase tracking-wider">시간</th>

@@ -3,7 +3,7 @@
 import { useState, useEffect } from 'react'
 import { useRouter } from 'next/navigation'
 import withAuth from '@/components/withAuth'
-import { PlusIcon, TrashIcon } from '@heroicons/react/24/outline'
+import { PlusIcon, TrashIcon, XMarkIcon } from '@heroicons/react/24/outline'
 import axios from 'axios'
 import { getSession } from '@/utils/auth'
 import { validateTimeOverlaps, validateStartEndTime } from '@/utils/workTime'
@@ -182,6 +182,8 @@ function CreateWorkLogPage() {
     </div>
   )
 
+  const inputClass = "w-full rounded-lg border-2 border-gray-200 shadow-sm focus:border-blue-500 focus:ring-blue-500 text-black"
+
   return (
     <div className="min-h-screen bg-gray-100 pb-20">
       <div className="bg-white shadow">
@@ -190,9 +192,10 @@ function CreateWorkLogPage() {
             <h1 className="text-2xl font-bold text-gray-900">업무 등록</h1>
             <button
               onClick={() => router.back()}
-              className="text-gray-600 hover:text-gray-900"
+              className="text-gray-600 hover:text-gray-900 transition-colors"
+              title="취소"
             >
-              취소
+              <XMarkIcon className="h-6 w-6" />
             </button>
           </div>
         </div>
@@ -214,8 +217,32 @@ function CreateWorkLogPage() {
                     type="date"
                     value={log.date}
                     onChange={(e) => updateEntry(log.id, 'date', e.target.value)}
-                    className="w-full rounded-lg border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 text-black"
+                    className={inputClass}
                   />
+                </div>
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">
+                    시작 시간
+                  </label>
+                  <input
+                    type="time"
+                    value={log.start_time}
+                    onChange={(e) => updateEntry(log.id, 'start_time', e.target.value)}
+                    className={inputClass}
+                  />
+                  <TimeAdjustChips logId={log.id} field="start_time" />
+                </div>
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">
+                    종료 시간
+                  </label>
+                  <input
+                    type="time"
+                    value={log.end_time}
+                    onChange={(e) => updateEntry(log.id, 'end_time', e.target.value)}
+                    className={inputClass}
+                  />
+                  <TimeAdjustChips logId={log.id} field="end_time" />
                 </div>
                 <div>
                   <label className="block text-sm font-medium text-gray-700 mb-1">
@@ -247,40 +274,16 @@ function CreateWorkLogPage() {
                         ))
                       }
                     }}
-                    className="w-full rounded-lg border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 text-black"
+                    className={`${inputClass} [&>option]:text-black`}
                     required
                   >
                     <option value="">선택하세요</option>
                     {workTypes.map((type) => (
-                      <option key={type.BIZ_CD} value={type.BIZ_CD}>
+                      <option key={type.BIZ_CD} value={type.BIZ_CD} className="text-black">
                         {type.BIZ_NM}
                       </option>
                     ))}
                   </select>
-                </div>
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">
-                    시작 시간
-                  </label>
-                  <input
-                    type="time"
-                    value={log.start_time}
-                    onChange={(e) => updateEntry(log.id, 'start_time', e.target.value)}
-                    className="w-full rounded-lg border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 text-black"
-                  />
-                  <TimeAdjustChips logId={log.id} field="start_time" />
-                </div>
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">
-                    종료 시간
-                  </label>
-                  <input
-                    type="time"
-                    value={log.end_time}
-                    onChange={(e) => updateEntry(log.id, 'end_time', e.target.value)}
-                    className="w-full rounded-lg border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 text-black"
-                  />
-                  <TimeAdjustChips logId={log.id} field="end_time" />
                 </div>
                 <div className="md:col-span-2">
                   <label className="block text-sm font-medium text-gray-700 mb-1">
@@ -290,7 +293,7 @@ function CreateWorkLogPage() {
                     value={log.description}
                     onChange={(e) => updateEntry(log.id, 'description', e.target.value)}
                     rows={3}
-                    className="w-full rounded-lg border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 text-black"
+                    className={`${inputClass} resize-none`}
                     placeholder="업무 내용을 입력하세요"
                   />
                 </div>
@@ -312,7 +315,7 @@ function CreateWorkLogPage() {
 
         <button
           onClick={addNewEntry}
-          className="mt-6 w-full py-3 flex items-center justify-center text-blue-600 hover:text-blue-700 bg-blue-50 rounded-lg hover:bg-blue-100 transition-colors duration-200"
+          className="mt-6 w-full py-3 flex items-center justify-center text-blue-600 hover:text-blue-700 bg-white rounded-lg hover:bg-gray-50 border-2 border-blue-100 transition-colors duration-200 shadow-sm"
         >
           <PlusIcon className="h-5 w-5 mr-2" />
           <span>업무 추가</span>

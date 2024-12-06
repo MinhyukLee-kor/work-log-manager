@@ -73,7 +73,7 @@ function DashboardPage() {
       <div className="bg-white shadow">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4">
           <div className="flex justify-between items-center">
-            <h1 className="text-2xl font-bold text-gray-900">업무 내역 조회</h1>
+            <h1 className="text-2xl font-bold text-gray-900">업무 내역</h1>
             <LogoutButton />
           </div>
         </div>
@@ -94,8 +94,7 @@ function DashboardPage() {
               onClick={() => fetchWorkLogs(dateRange.startDate, dateRange.endDate)}
               className="px-6 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 flex items-center"
             >
-              <MagnifyingGlassIcon className="h-5 w-5 mr-2" />
-              <span>조회</span>
+              <MagnifyingGlassIcon className="h-5 w-5" />
             </button>
           </div>
         </div>
