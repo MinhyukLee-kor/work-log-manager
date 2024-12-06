@@ -3,6 +3,7 @@
 import { useEffect } from 'react'
 import { useForm } from 'react-hook-form'
 import { useRouter } from 'next/navigation'
+import Image from 'next/image'
 import axios from 'axios'
 import { setSession, isAuthenticated } from '@/utils/auth'
 import { UserIcon, KeyIcon } from '@heroicons/react/24/outline'
@@ -69,12 +70,27 @@ export default function LoginPage() {
               initial={{ scale: 0.9 }}
               animate={{ scale: 1 }}
               transition={{ duration: 0.3 }}
-              className="text-center mb-10"
+              className="text-center mb-8"
             >
-              <h2 className="text-3xl font-bold text-gray-900 mb-2">
-                Welcome Back
-              </h2>
-              <p className="text-gray-600">업무 관리 시스템에 로그인하세요</p>
+              <div className="flex justify-center mb-4">
+                <motion.div
+                  initial={{ rotate: -10, scale: 0.9 }}
+                  animate={{ rotate: 0, scale: 1 }}
+                  transition={{ 
+                    type: "spring",
+                    stiffness: 260,
+                    damping: 20
+                  }}
+                >
+                  <Image
+                    src="/worklog/icons/icon-512x512.png"
+                    alt="WorkLog"
+                    width={150}
+                    height={150}
+                  />
+                </motion.div>
+              </div>
+              <p className="text-gray-600 mt-2">업무 관리 시스템에 로그인하세요</p>
             </motion.div>
 
             <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
@@ -85,7 +101,7 @@ export default function LoginPage() {
                     <input
                       {...register('username', { required: '아이디를 입력해주세요' })}
                       type="text"
-                      className="w-full pl-10 pr-4 py-3 border-2 border-gray-200 rounded-lg focus:border-blue-500 focus:ring-blue-500 transition-colors duration-200"
+                      className="text-black w-full pl-10 pr-4 py-3 border-2 border-gray-200 rounded-lg focus:border-blue-500 focus:ring-blue-500 transition-colors duration-200"
                       placeholder="아이디"
                     />
                   </div>
@@ -106,7 +122,7 @@ export default function LoginPage() {
                     <input
                       {...register('password', { required: '비밀번호를 입력해주세요' })}
                       type="password"
-                      className="w-full pl-10 pr-4 py-3 border-2 border-gray-200 rounded-lg focus:border-blue-500 focus:ring-blue-500 transition-colors duration-200"
+                      className="text-blackw-full pl-10 pr-4 py-3 border-2 border-gray-200 rounded-lg focus:border-blue-500 focus:ring-blue-500 transition-colors duration-200"
                       placeholder="비밀번호"
                     />
                   </div>
