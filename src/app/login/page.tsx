@@ -122,7 +122,7 @@ export default function LoginPage() {
                     <input
                       {...register('password', { required: '비밀번호를 입력해주세요' })}
                       type="password"
-                      className="text-blackw-full pl-10 pr-4 py-3 border-2 border-gray-200 rounded-lg focus:border-blue-500 focus:ring-blue-500 transition-colors duration-200"
+                      className="text-black w-full pl-10 pr-4 py-3 border-2 border-gray-200 rounded-lg focus:border-blue-500 focus:ring-blue-500 transition-colors duration-200"
                       placeholder="비밀번호"
                     />
                   </div>
