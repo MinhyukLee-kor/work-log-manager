@@ -7,6 +7,7 @@ import { PlusIcon, TrashIcon, XMarkIcon } from '@heroicons/react/24/outline'
 import axios from 'axios'
 import { getSession } from '@/utils/auth'
 import { validateTimeOverlaps, validateStartEndTime } from '@/utils/workTime'
+import { motion, AnimatePresence } from 'framer-motion'
 
 interface WorkType {
   BIZ_TP: string
@@ -184,29 +185,58 @@ function CreateWorkLogPage() {
 
   const inputClass = "w-full rounded-lg border-2 border-gray-200 shadow-sm focus:border-blue-500 focus:ring-blue-500 text-black"
 
+  const containerVariants = {
+    hidden: { opacity: 0 },
+    visible: {
+      opacity: 1,
+      transition: {
+        staggerChildren: 0.1
+      }
+    }
+  }
+
+  const itemVariants = {
+    hidden: { opacity: 0, y: 20 },
+    visible: { opacity: 1, y: 0 }
+  }
+
   return (
-    <div className="min-h-screen bg-gray-100 pb-20">
-      <div className="bg-white shadow">
+    <motion.div 
+      initial="hidden"
+      animate="visible"
+      variants={containerVariants}
+      className="min-h-screen bg-gradient-to-br from-gray-50 to-gray-100 pb-20"
+    >
+      <motion.div 
+        variants={itemVariants}
+        className="bg-white shadow-sm border-b"
+      >
         <div className="max-w-3xl mx-auto px-4 sm:px-6 lg:px-8 py-4">
           <div className="flex justify-between items-center">
             <h1 className="text-2xl font-bold text-gray-900">업무 등록</h1>
-            <button
+            <motion.button
+              whileHover={{ scale: 1.1 }}
+              whileTap={{ scale: 0.9 }}
               onClick={() => router.back()}
               className="text-gray-600 hover:text-gray-900 transition-colors"
               title="취소"
             >
               <XMarkIcon className="h-6 w-6" />
-            </button>
+            </motion.button>
           </div>
         </div>
-      </div>
+      </motion.div>
 
       <div className="max-w-3xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
-        <div className="space-y-6">
-          {workLogs.map((log) => (
-            <div 
+        <AnimatePresence>
+          {workLogs.map((log, index) => (
+            <motion.div
               key={log.id}
-              className="bg-white rounded-lg shadow-sm p-6"
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={{ opacity: 0, y: -20 }}
+              transition={{ delay: index * 0.1 }}
+              className="bg-white rounded-xl shadow-sm p-6 mb-4 border"
             >
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div>
@@ -309,28 +339,36 @@ function CreateWorkLogPage() {
                   </button>
                 </div>
               )}
-            </div>
+            </motion.div>
           ))}
-        </div>
+        </AnimatePresence>
 
-        <button
+        <motion.button
+          variants={itemVariants}
+          whileHover={{ scale: 1.02 }}
+          whileTap={{ scale: 0.98 }}
           onClick={addNewEntry}
           className="mt-6 w-full py-3 flex items-center justify-center text-blue-600 hover:text-blue-700 bg-white rounded-lg hover:bg-gray-50 border-2 border-blue-100 transition-colors duration-200 shadow-sm"
         >
           <PlusIcon className="h-5 w-5 mr-2" />
           <span>업무 추가</span>
-        </button>
+        </motion.button>
       </div>
 
-      <div className="fixed bottom-4 left-0 right-0 px-4 flex items-center justify-center">
-        <button
+      <motion.div 
+        variants={itemVariants}
+        className="fixed bottom-4 left-0 right-0 px-4 flex items-center justify-center"
+      >
+        <motion.button
+          whileHover={{ scale: 1.05 }}
+          whileTap={{ scale: 0.95 }}
           onClick={handleSubmit}
-          className="w-full max-w-md h-14 flex items-center justify-center bg-blue-600 text-white rounded-full shadow-lg hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 transition-colors duration-200"
+          className="w-full max-w-md h-14 flex items-center justify-center bg-blue-600 text-white rounded-full shadow-lg hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 transition-all duration-200"
         >
           <span className="text-lg font-medium">등록하기</span>
-        </button>
-      </div>
-    </div>
+        </motion.button>
+      </motion.div>
+    </motion.div>
   )
 }
 

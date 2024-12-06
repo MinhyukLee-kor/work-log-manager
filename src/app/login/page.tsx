@@ -5,6 +5,8 @@ import { useForm } from 'react-hook-form'
 import { useRouter } from 'next/navigation'
 import axios from 'axios'
 import { setSession, isAuthenticated } from '@/utils/auth'
+import { UserIcon, KeyIcon } from '@heroicons/react/24/outline'
+import { motion } from 'framer-motion'
 
 interface LoginForm {
   username: string
@@ -13,9 +15,8 @@ interface LoginForm {
 
 export default function LoginPage() {
   const router = useRouter()
-  const { register, handleSubmit, formState: { errors } } = useForm<LoginForm>()
+  const { register, handleSubmit, formState: { errors, isSubmitting } } = useForm<LoginForm>()
 
-  // 이미 로그인한 사용자는 대시보드로 리다이렉션
   useEffect(() => {
     if (isAuthenticated()) {
       router.push('/dashboard')
@@ -55,45 +56,89 @@ export default function LoginPage() {
   }
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gray-50">
-      <div className="max-w-md w-full space-y-8 p-8 bg-white rounded-lg shadow">
-        <div>
-          <h2 className="text-center text-3xl font-extrabold text-gray-900">
-            로그인
-          </h2>
-        </div>
-        <form className="mt-8 space-y-6" onSubmit={handleSubmit(onSubmit)}>
-          <div className="rounded-md shadow-sm -space-y-px">
-            <div>
-              <input
-                {...register('username', { required: '아이디를 입력해주세요' })}
-                type="text"
-                className="appearance-none rounded-none relative block w-full px-3 py-2 border border-gray-300 placeholder-gray-500 text-gray-900 rounded-t-md focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 focus:z-10 sm:text-sm"
-                placeholder="아이디"
-              />
-              {errors.username && <p className="text-red-500 text-xs mt-1">{errors.username.message}</p>}
-            </div>
-            <div>
-              <input
-                {...register('password', { required: '비밀번호를 입력해주세요' })}
-                type="password"
-                className="appearance-none rounded-none relative block w-full px-3 py-2 border border-gray-300 placeholder-gray-500 text-gray-900 rounded-b-md focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 focus:z-10 sm:text-sm"
-                placeholder="비밀번호"
-              />
-              {errors.password && <p className="text-red-500 text-xs mt-1">{errors.password.message}</p>}
-            </div>
-          </div>
-
-          <div>
-            <button
-              type="submit"
-              className="group relative w-full flex justify-center py-2 px-4 border border-transparent text-sm font-medium rounded-md text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
+    <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-blue-50 to-indigo-50">
+      <motion.div
+        initial={{ opacity: 0, y: 20 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.5 }}
+        className="w-full max-w-md px-8 py-10 mx-4"
+      >
+        <div className="bg-white rounded-2xl shadow-xl overflow-hidden">
+          <div className="px-8 py-10">
+            <motion.div
+              initial={{ scale: 0.9 }}
+              animate={{ scale: 1 }}
+              transition={{ duration: 0.3 }}
+              className="text-center mb-10"
             >
-              로그인
-            </button>
+              <h2 className="text-3xl font-bold text-gray-900 mb-2">
+                Welcome Back
+              </h2>
+              <p className="text-gray-600">업무 관리 시스템에 로그인하세요</p>
+            </motion.div>
+
+            <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
+              <div className="space-y-4">
+                <div>
+                  <div className="relative">
+                    <UserIcon className="absolute left-3 top-1/2 transform -translate-y-1/2 h-5 w-5 text-gray-400" />
+                    <input
+                      {...register('username', { required: '아이디를 입력해주세요' })}
+                      type="text"
+                      className="w-full pl-10 pr-4 py-3 border-2 border-gray-200 rounded-lg focus:border-blue-500 focus:ring-blue-500 transition-colors duration-200"
+                      placeholder="아이디"
+                    />
+                  </div>
+                  {errors.username && (
+                    <motion.p
+                      initial={{ opacity: 0, y: -10 }}
+                      animate={{ opacity: 1, y: 0 }}
+                      className="text-red-500 text-sm mt-1"
+                    >
+                      {errors.username.message}
+                    </motion.p>
+                  )}
+                </div>
+
+                <div>
+                  <div className="relative">
+                    <KeyIcon className="absolute left-3 top-1/2 transform -translate-y-1/2 h-5 w-5 text-gray-400" />
+                    <input
+                      {...register('password', { required: '비밀번호를 입력해주세요' })}
+                      type="password"
+                      className="w-full pl-10 pr-4 py-3 border-2 border-gray-200 rounded-lg focus:border-blue-500 focus:ring-blue-500 transition-colors duration-200"
+                      placeholder="비밀번호"
+                    />
+                  </div>
+                  {errors.password && (
+                    <motion.p
+                      initial={{ opacity: 0, y: -10 }}
+                      animate={{ opacity: 1, y: 0 }}
+                      className="text-red-500 text-sm mt-1"
+                    >
+                      {errors.password.message}
+                    </motion.p>
+                  )}
+                </div>
+              </div>
+
+              <motion.button
+                whileHover={{ scale: 1.02 }}
+                whileTap={{ scale: 0.98 }}
+                type="submit"
+                disabled={isSubmitting}
+                className="w-full py-3 px-4 bg-blue-600 hover:bg-blue-700 text-white font-medium rounded-lg shadow-lg hover:shadow-xl transition-all duration-200 flex items-center justify-center space-x-2 disabled:opacity-50 disabled:cursor-not-allowed"
+              >
+                {isSubmitting ? (
+                  <div className="w-6 h-6 border-2 border-white border-t-transparent rounded-full animate-spin" />
+                ) : (
+                  <span>로그인</span>
+                )}
+              </motion.button>
+            </form>
           </div>
-        </form>
-      </div>
+        </div>
+      </motion.div>
     </div>
   )
 } 
