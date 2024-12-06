@@ -15,13 +15,13 @@ interface WorkType {
 }
 
 interface WorkLogEntry {
-  id: string  // 임시 ID (프론트엔드용)
+  id: string
   date: string
   start_time: string
   end_time: string
   description: string
-  bizType: string    // 추가
-  bizCode: string    // 추가
+  bizType: string
+  bizCode: string
 }
 
 function CreateWorkLogPage() {
@@ -37,7 +37,6 @@ function CreateWorkLogPage() {
     bizCode: ''
   }])
 
-  // 업무 종류 조회
   useEffect(() => {
     const fetchWorkTypes = async () => {
       try {
@@ -79,11 +78,9 @@ function CreateWorkLogPage() {
       if (log.id === id) {
         const updatedLog = { ...log, [field]: value };
         
-        // 시작 시간이 종료 시간보다 늦을 경우 종료 시간을 시작 시간으로 설정
         if (field === 'start_time' && value > updatedLog.end_time) {
           updatedLog.end_time = value;
         }
-        // 종료 시간이 시작 시간보다 빠를 경우 시작 시간으로 설정
         if (field === 'end_time' && value < updatedLog.start_time) {
           updatedLog.end_time = updatedLog.start_time;
         }
@@ -96,7 +93,6 @@ function CreateWorkLogPage() {
 
   const handleSubmit = async () => {
     try {
-      // 필수 입력값 검증
       const hasEmptyFields = workLogs.some(log => 
         !log.date || !log.start_time || !log.end_time || !log.bizCode || !log.bizType
       );
@@ -106,7 +102,6 @@ function CreateWorkLogPage() {
         return;
       }
 
-      // 시작/종료 시간 검증
       for (const log of workLogs) {
         const timeValidation = validateStartEndTime(log.start_time, log.end_time);
         if (!timeValidation.isValid) {
@@ -115,7 +110,6 @@ function CreateWorkLogPage() {
         }
       }
 
-      // 프론트엔드 시간 중복 검증
       const overlapCheck = validateTimeOverlaps(workLogs);
       if (overlapCheck.isOverlapping) {
         alert(overlapCheck.message);
@@ -160,7 +154,7 @@ function CreateWorkLogPage() {
           } else {
             updatedLog.start_time = newTime;
           }
-        } else { // end_time
+        } else {
           if (newTime < updatedLog.start_time) {
             updatedLog.end_time = updatedLog.start_time;
           } else {
@@ -175,38 +169,23 @@ function CreateWorkLogPage() {
   };
 
   const TimeAdjustChips = ({ logId, field }: { logId: string, field: 'start_time' | 'end_time' }) => (
-    <div className="flex gap-1 mt-1">
-      <button
-        onClick={() => adjustTime(logId, field, 60)}
-        className="px-2 py-0.5 text-xs rounded-md bg-blue-500 text-white hover:bg-blue-600 transition-colors"
-      >
-        +1h
-      </button>
-      <button
-        onClick={() => adjustTime(logId, field, 30)}
-        className="px-2 py-0.5 text-xs rounded-md bg-blue-500 text-white hover:bg-blue-600 transition-colors"
-      >
-        +30m
-      </button>
-      <button
-        onClick={() => adjustTime(logId, field, -60)}
-        className="px-2 py-0.5 text-xs rounded-md bg-blue-500 text-white hover:bg-blue-600 transition-colors"
-      >
-        -1h
-      </button>
-      <button
-        onClick={() => adjustTime(logId, field, -30)}
-        className="px-2 py-0.5 text-xs rounded-md bg-blue-500 text-white hover:bg-blue-600 transition-colors"
-      >
-        -30m
-      </button>
+    <div className="flex gap-2 mt-2">
+      {[60, 30, -30, -60].map((minutes) => (
+        <button
+          key={minutes}
+          onClick={() => adjustTime(logId, field, minutes)}
+          className="px-2 py-1 text-xs rounded-full bg-blue-100 text-blue-600 hover:bg-blue-200 transition-colors"
+        >
+          {minutes > 0 ? '+' : ''}{minutes}m
+        </button>
+      ))}
     </div>
   )
 
   return (
-    <div className="min-h-screen bg-white relative pb-16">
-      <div className="max-w-3xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
-        <div className="border-b border-gray-200 pb-4 mb-6">
+    <div className="min-h-screen bg-gray-100 pb-20">
+      <div className="bg-white shadow">
+        <div className="max-w-3xl mx-auto px-4 sm:px-6 lg:px-8 py-4">
           <div className="flex justify-between items-center">
             <h1 className="text-2xl font-bold text-gray-900">업무 등록</h1>
             <button
@@ -217,14 +196,16 @@ function CreateWorkLogPage() {
             </button>
           </div>
         </div>
+      </div>
 
-        <div className="space-y-4">
-          {workLogs.map((log, index) => (
+      <div className="max-w-3xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
+        <div className="space-y-6">
+          {workLogs.map((log) => (
             <div 
               key={log.id}
-              className="bg-white rounded-lg border border-gray-300 p-4 shadow-sm"
+              className="bg-white rounded-lg shadow-sm p-6"
             >
-              <div className="grid grid-cols-1 gap-4 mb-4">
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div>
                   <label className="block text-sm font-medium text-gray-700 mb-1">
                     날짜
@@ -233,32 +214,8 @@ function CreateWorkLogPage() {
                     type="date"
                     value={log.date}
                     onChange={(e) => updateEntry(log.id, 'date', e.target.value)}
-                    className="w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 text-black"
+                    className="w-full rounded-lg border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 text-black"
                   />
-                </div>
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">
-                    시작 시간
-                  </label>
-                  <input
-                    type="time"
-                    value={log.start_time}
-                    onChange={(e) => updateEntry(log.id, 'start_time', e.target.value)}
-                    className="w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 text-black"
-                  />
-                  <TimeAdjustChips logId={log.id} field="start_time" />
-                </div>
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">
-                    종료 시간
-                  </label>
-                  <input
-                    type="time"
-                    value={log.end_time}
-                    onChange={(e) => updateEntry(log.id, 'end_time', e.target.value)}
-                    className="w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 text-black"
-                  />
-                  <TimeAdjustChips logId={log.id} field="end_time" />
                 </div>
                 <div>
                   <label className="block text-sm font-medium text-gray-700 mb-1">
@@ -290,12 +247,12 @@ function CreateWorkLogPage() {
                         ))
                       }
                     }}
-                    className="w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 text-black [&>option]:text-black"
+                    className="w-full rounded-lg border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 text-black"
                     required
                   >
-                    <option value="" className="text-black">선택하세요</option>
+                    <option value="">선택하세요</option>
                     {workTypes.map((type) => (
-                      <option key={type.BIZ_CD} value={type.BIZ_CD} className="text-black">
+                      <option key={type.BIZ_CD} value={type.BIZ_CD}>
                         {type.BIZ_NM}
                       </option>
                     ))}
@@ -303,22 +260,46 @@ function CreateWorkLogPage() {
                 </div>
                 <div>
                   <label className="block text-sm font-medium text-gray-700 mb-1">
+                    시작 시간
+                  </label>
+                  <input
+                    type="time"
+                    value={log.start_time}
+                    onChange={(e) => updateEntry(log.id, 'start_time', e.target.value)}
+                    className="w-full rounded-lg border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 text-black"
+                  />
+                  <TimeAdjustChips logId={log.id} field="start_time" />
+                </div>
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">
+                    종료 시간
+                  </label>
+                  <input
+                    type="time"
+                    value={log.end_time}
+                    onChange={(e) => updateEntry(log.id, 'end_time', e.target.value)}
+                    className="w-full rounded-lg border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 text-black"
+                  />
+                  <TimeAdjustChips logId={log.id} field="end_time" />
+                </div>
+                <div className="md:col-span-2">
+                  <label className="block text-sm font-medium text-gray-700 mb-1">
                     업무 내용
                   </label>
                   <textarea
                     value={log.description}
                     onChange={(e) => updateEntry(log.id, 'description', e.target.value)}
-                    rows={2}
-                    className="w-full rounded-md border-2 border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 text-black hover:border-gray-400"
+                    rows={3}
+                    className="w-full rounded-lg border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 text-black"
                     placeholder="업무 내용을 입력하세요"
                   />
                 </div>
               </div>
               {workLogs.length > 1 && (
-                <div className="mt-2 flex justify-end">
+                <div className="mt-4 flex justify-end">
                   <button
                     onClick={() => removeEntry(log.id)}
-                    className="text-red-600 hover:text-red-900"
+                    className="text-red-600 hover:text-red-700 transition-colors"
                     title="삭제"
                   >
                     <TrashIcon className="h-5 w-5" />
@@ -331,24 +312,23 @@ function CreateWorkLogPage() {
 
         <button
           onClick={addNewEntry}
-          className="mt-4 w-full py-2 flex items-center justify-center text-gray-600 hover:text-gray-900 border-2 border-dashed border-gray-300 rounded-lg hover:border-gray-400"
+          className="mt-6 w-full py-3 flex items-center justify-center text-blue-600 hover:text-blue-700 bg-blue-50 rounded-lg hover:bg-blue-100 transition-colors duration-200"
         >
           <PlusIcon className="h-5 w-5 mr-2" />
           <span>업무 추가</span>
         </button>
       </div>
 
-      {/* 하단 고 버튼 */}
-      <div className="fixed bottom-0 left-0 right-0 h-16 bg-white border-t border-gray-200 px-4 flex items-center justify-center">
+      <div className="fixed bottom-4 left-0 right-0 px-4 flex items-center justify-center">
         <button
           onClick={handleSubmit}
-          className="w-full max-w-md h-12 flex items-center justify-center bg-blue-600 text-white rounded-lg shadow hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 transition-colors duration-200"
+          className="w-full max-w-md h-14 flex items-center justify-center bg-blue-600 text-white rounded-full shadow-lg hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 transition-colors duration-200"
         >
-          <span className="text-base font-medium">등록하기</span>
+          <span className="text-lg font-medium">등록하기</span>
         </button>
       </div>
     </div>
   )
 }
 
-export default withAuth(CreateWorkLogPage) 
+export default withAuth(CreateWorkLogPage)

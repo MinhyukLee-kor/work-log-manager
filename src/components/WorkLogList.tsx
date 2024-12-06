@@ -1,7 +1,8 @@
 'use client'
 
+import React from 'react'
 import { useRouter } from 'next/navigation'
-import { PencilSquareIcon, TrashIcon } from '@heroicons/react/24/outline'
+import { PencilIcon, TrashIcon, ChevronRightIcon } from '@heroicons/react/24/outline'
 import axios from 'axios'
 import { getSession } from '@/utils/auth'
 
@@ -46,7 +47,6 @@ export default function WorkLogList({ workLogs, loading, dateRange }: WorkLogLis
 
       if (response.data.success) {
         alert('삭제되었습니다.')
-        // 페이지 새로고침
         window.location.reload()
       }
     } catch (error) {
@@ -65,17 +65,6 @@ export default function WorkLogList({ workLogs, loading, dateRange }: WorkLogLis
     }
   }
 
-  let previousDate = ''
-
-  if (loading) {
-    return <div className="p-4 text-center text-gray-500">로딩중...</div>
-  }
-
-  if (!workLogs || workLogs.length === 0) {
-    return <div className="p-4 text-center text-gray-500">등록된 업무가 없습니다.</div>
-  }
-
-  // 날짜별로 업무 시간을 계산하는 함수
   const calculateTotalHours = (logs: WorkLog[]) => {
     let totalMinutes = 0;
     
@@ -92,7 +81,6 @@ export default function WorkLogList({ workLogs, loading, dateRange }: WorkLogLis
     return `${hours}시간 ${minutes}분`;
   };
 
-  // 날짜별로 업무 로그를 그룹화
   const groupedLogs = workLogs.reduce((acc, log) => {
     if (!acc[log.date]) {
       acc[log.date] = [];
@@ -101,67 +89,76 @@ export default function WorkLogList({ workLogs, loading, dateRange }: WorkLogLis
     return acc;
   }, {} as Record<string, WorkLog[]>);
 
+  if (loading) {
+    return (
+      <div className="flex items-center justify-center h-64">
+        <div className="animate-spin rounded-full h-16 w-16 border-t-2 border-b-2 border-blue-500"></div>
+      </div>
+    )
+  }
+
+  if (!workLogs || workLogs.length === 0) {
+    return (
+      <div className="text-center py-12">
+        <p className="text-xl text-gray-500">등록된 업무가 없습니다.</p>
+      </div>
+    )
+  }
+
   return (
-    <div className="border rounded-lg shadow">
+    <div className="bg-white shadow-md rounded-lg overflow-hidden">
       <div className="overflow-x-auto">
         <table className="min-w-full divide-y divide-gray-200">
           <thead className="bg-gray-50">
             <tr>
-              <th className="sticky top-0 text-center bg-gray-50 px-1 py-1 md:px-3 md:py-2 text-xs font-medium text-gray-500 tracking-wider w-20 md:w-24">날짜</th>
-              <th className="sticky top-0 text-center bg-gray-50 hidden md:table-cell px-1 py-1 md:px-3 md:py-2 text-xs font-medium text-gray-500 tracking-wider w-28">시간</th>
-              <th className="sticky top-0 text-center bg-gray-50 px-1 py-1 md:px-3 md:py-2 text-xs font-medium text-gray-500 tracking-wider w-24 md:w-28">업무</th>
-              <th className="sticky top-0 text-center bg-gray-50 px-1 py-1 md:px-3 md:py-2 text-xs font-medium text-gray-500 tracking-wider">업무 내용</th>
-              <th className="sticky top-0 text-center bg-gray-50 px-1 py-1 md:px-3 md:py-2 text-xs font-medium text-gray-500 tracking-wider w-20">작업</th>
+              <th scope="col" className="px-1 py-1 text-center text-xs font-medium text-gray-500 uppercase tracking-wider">날짜</th>
+              <th scope="col" className="hidden md:table-cell px-1 py-1 text-center text-xs font-medium text-gray-500 uppercase tracking-wider">시간</th>
+              <th scope="col" className="px-1 py-1 text-center text-xs font-medium text-gray-500 uppercase tracking-wider">업무</th>
+              <th scope="col" className="px-1 py-1 text-center text-xs font-medium text-gray-500 uppercase tracking-wider">업무 내용</th>
+              <th scope="col" className="px-1 py-1 text-center text-xs font-medium text-gray-500 uppercase tracking-wider">작업</th>
             </tr>
           </thead>
-        </table>
-      </div>
-      <div className="overflow-auto" style={{ height: 'calc(5 * 2.75rem)' }}>
-        <table className="min-w-full divide-y divide-gray-200">
           <tbody className="bg-white divide-y divide-gray-200">
-            {workLogs.map((log) => {
-              const showDate = log.date !== previousDate
-              previousDate = log.date
-              
-              return (
-                <tr key={log.id} className="hover:bg-gray-50">
-                  <td className="text-center px-1 py-1 md:px-3 md:py-2 whitespace-nowrap text-sm text-gray-900 w-20 md:w-24">
-                    {showDate && (
-                      <div>
-                        <div>{formatDate(log.date)}</div>
-                        <div className="text-xs text-gray-500 mt-1">
-                          {calculateTotalHours(groupedLogs[log.date])}
+            {Object.entries(groupedLogs).map(([date, logs]) => (
+              <React.Fragment key={date}>
+                {logs.map((log, index) => (
+                  <tr key={log.id} className="text-center hover:bg-gray-50 transition-colors duration-150 ease-in-out">
+                    <td className="px-1 py-1 whitespace-nowrap text-sm text-gray-900">
+                      {index === 0 ? (
+                        <div>
+                          <div>{formatDate(log.date)}</div>
+                          <div className="text-xs text-gray-500 mt-1">
+                            {calculateTotalHours(logs)}
+                          </div>
                         </div>
+                      ) : null}
+                    </td>
+                    <td className="hidden md:table-cell px-1 py-1 whitespace-nowrap text-sm text-gray-500">
+                      {log.start_time} - {log.end_time}
+                    </td>
+                    <td className="px-1 py-1 whitespace-nowrap">
+                      <div className="flex md:flex-row flex-col items-center justify-center gap-1">
+                        <span className="px-1 inline-flex text-xs leading-5 font-semibold rounded-full bg-blue-100 text-blue-800 w-fit">
+                          {log.bizType === 'P' ? '프로젝트' : '공통'}
+                        </span>
+                        <span className="text-sm text-gray-500 md:ml-1">
+                          {log.bizCode}
+                        </span>
                       </div>
-                    )}
-                  </td>
-                  <td className="text-center hidden md:table-cell px-1 py-1 md:px-3 md:py-2 whitespace-nowrap text-sm text-gray-900 w-28">
-                    {log.start_time} - {log.end_time}
-                  </td>
-                  <td className="text-center px-1 py-1 md:px-3 md:py-2 whitespace-nowrap text-sm text-gray-900 w-24 md:w-28">
-                    <div>
-                      <div>{log.bizType === 'P' ? '프로젝트' : '공통'}</div>
-                      <div className="text-xs text-gray-500 mt-0.5">
-                        {log.bizCode}
-                      </div>
-                    </div>
-                  </td>
-                  <td className="text-center px-1 py-1 md:px-3 md:py-2 text-sm text-gray-900">
-                    <div>
-                      {log.description}
-                      <div className="md:hidden text-xs text-gray-500 mt-0.5">
+                    </td>
+                    <td className="px-1 py-1 text-sm text-gray-900">
+                      <div>{log.description}</div>
+                      <div className="md:hidden text-xs text-gray-500 mt-1">
                         {log.start_time} - {log.end_time}
                       </div>
-                    </div>
-                  </td>
-                  <td className="text-center px-1 py-1 md:px-3 md:py-2 whitespace-nowrap text-sm text-gray-500 w-20">
-                    <div className="flex items-center justify-center space-x-2">
+                    </td>
+                    <td className="px-1 py-1 whitespace-nowrap text-sm font-medium">
                       <button
                         onClick={() => router.push(`/work-logs/edit/${log.id}`)}
-                        className="text-indigo-600 hover:text-indigo-900"
+                        className="text-indigo-600 hover:text-indigo-900 mr-2"
                         title="수정"
                       >
-                        <PencilSquareIcon className="h-4 w-4" />
+                        <PencilIcon className="h-4 w-4" />
                       </button>
                       <button
                         onClick={() => handleDelete(log.id)}
@@ -170,14 +167,15 @@ export default function WorkLogList({ workLogs, loading, dateRange }: WorkLogLis
                       >
                         <TrashIcon className="h-4 w-4" />
                       </button>
-                    </div>
-                  </td>
-                </tr>
-              )
-            })}
+                    </td>
+                  </tr>
+                ))}
+              </React.Fragment>
+            ))}
           </tbody>
         </table>
       </div>
     </div>
-  )
-} 
+  );
+}
+

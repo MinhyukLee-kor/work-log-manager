@@ -6,6 +6,7 @@ import withAuth from '@/components/withAuth'
 import axios from 'axios'
 import { getSession } from '@/utils/auth'
 import { validateStartEndTime } from '@/utils/workTime'
+import { ArrowLeftIcon, ClockIcon } from '@heroicons/react/24/outline'
 
 interface WorkLog {
   id: string
@@ -33,7 +34,6 @@ function EditWorkLogPage({ params }: Props) {
   const [workTypes, setWorkTypes] = useState<WorkType[]>([])
   const [loading, setLoading] = useState(true)
 
-  // 업무 종류 조회
   useEffect(() => {
     const fetchWorkTypes = async () => {
       try {
@@ -49,7 +49,6 @@ function EditWorkLogPage({ params }: Props) {
     fetchWorkTypes()
   }, [])
 
-  // 업무 내역 조회
   useEffect(() => {
     const fetchWorkLog = async () => {
       try {
@@ -81,7 +80,6 @@ function EditWorkLogPage({ params }: Props) {
     try {
       if (!workLog) return;
 
-      // 시작/종료 시간 검증
       const timeValidation = validateStartEndTime(workLog.start_time, workLog.end_time);
       if (!timeValidation.isValid) {
         alert(timeValidation.message);
@@ -169,55 +167,48 @@ function EditWorkLogPage({ params }: Props) {
   };
 
   const TimeAdjustChips = ({ field }: { field: 'start_time' | 'end_time' }) => (
-    <div className="flex gap-1 mt-1">
-      <button
-        onClick={() => adjustTime(field, 60)}
-        className="px-2 py-0.5 text-xs rounded-md bg-blue-500 text-white hover:bg-blue-600 transition-colors"
-      >
-        +1h
-      </button>
-      <button
-        onClick={() => adjustTime(field, 30)}
-        className="px-2 py-0.5 text-xs rounded-md bg-blue-500 text-white hover:bg-blue-600 transition-colors"
-      >
-        +30m
-      </button>
-      <button
-        onClick={() => adjustTime(field, -60)}
-        className="px-2 py-0.5 text-xs rounded-md bg-blue-500 text-white hover:bg-blue-600 transition-colors"
-      >
-        -1h
-      </button>
-      <button
-        onClick={() => adjustTime(field, -30)}
-        className="px-2 py-0.5 text-xs rounded-md bg-blue-500 text-white hover:bg-blue-600 transition-colors"
-      >
-        -30m
-      </button>
+    <div className="flex gap-2 mt-2">
+      {[60, 30, -30, -60].map((minutes) => (
+        <button
+          key={minutes}
+          onClick={() => adjustTime(field, minutes)}
+          className="px-2 py-1 text-xs rounded-full bg-blue-100 text-blue-600 hover:bg-blue-200 transition-colors"
+        >
+          {minutes > 0 ? '+' : ''}{minutes}m
+        </button>
+      ))}
     </div>
   );
 
   if (loading || !workLog) {
-    return <div className="min-h-screen bg-white flex items-center justify-center">로딩중...</div>
+    return (
+      <div className="min-h-screen bg-gray-100 flex items-center justify-center">
+        <div className="animate-spin rounded-full h-32 w-32 border-t-2 border-b-2 border-blue-500"></div>
+      </div>
+    )
   }
 
   return (
-    <div className="min-h-screen bg-white relative pb-16">
-      <div className="max-w-3xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
-        <div className="border-b border-gray-200 pb-4 mb-6">
+    <div className="min-h-screen bg-gray-100 pb-20">
+      <div className="bg-white shadow">
+        <div className="max-w-3xl mx-auto px-4 sm:px-6 lg:px-8 py-4">
           <div className="flex justify-between items-center">
-            <h1 className="text-2xl font-bold text-gray-900">업무 수정</h1>
             <button
               onClick={() => router.back()}
-              className="text-gray-600 hover:text-gray-900"
+              className="text-gray-600 hover:text-gray-900 flex items-center"
             >
-              취소
+              <ArrowLeftIcon className="h-5 w-5 mr-1" />
+              뒤로
             </button>
+            <h1 className="text-2xl font-bold text-gray-900">업무 수정</h1>
+            <div className="w-14"></div> {/* 우측 여백 맞추기 */}
           </div>
         </div>
+      </div>
 
-        <div className="bg-white rounded-lg border border-gray-300 p-4 shadow-sm">
-          <div className="grid grid-cols-1 gap-4">
+      <div className="max-w-3xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
+        <div className="bg-white rounded-lg shadow-sm p-6">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-1">
                 날짜
@@ -226,32 +217,8 @@ function EditWorkLogPage({ params }: Props) {
                 type="date"
                 value={workLog.date}
                 onChange={(e) => setWorkLog({ ...workLog, date: e.target.value })}
-                className="w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 text-black"
+                className="w-full rounded-lg border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 text-black"
               />
-            </div>
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">
-                시작 시간
-              </label>
-              <input
-                type="time"
-                value={workLog.start_time}
-                onChange={(e) => handleTimeChange('start_time', e.target.value)}
-                className="w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 text-black"
-              />
-              <TimeAdjustChips field="start_time" />
-            </div>
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">
-                종료 시간
-              </label>
-              <input
-                type="time"
-                value={workLog.end_time}
-                onChange={(e) => handleTimeChange('end_time', e.target.value)}
-                className="w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 text-black"
-              />
-              <TimeAdjustChips field="end_time" />
             </div>
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-1">
@@ -269,12 +236,12 @@ function EditWorkLogPage({ params }: Props) {
                     })
                   }
                 }}
-                className="w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 text-black [&>option]:text-black"
+                className="w-full rounded-lg border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 text-black"
                 required
               >
-                <option value="" className="text-black">선택하세요</option>
+                <option value="">선택하세요</option>
                 {workTypes.map((type) => (
-                  <option key={type.BIZ_CD} value={type.BIZ_CD} className="text-black">
+                  <option key={type.BIZ_CD} value={type.BIZ_CD}>
                     {type.BIZ_NM}
                   </option>
                 ))}
@@ -282,13 +249,43 @@ function EditWorkLogPage({ params }: Props) {
             </div>
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-1">
+                시작 시간
+              </label>
+              <div className="relative">
+                <input
+                  type="time"
+                  value={workLog.start_time}
+                  onChange={(e) => handleTimeChange('start_time', e.target.value)}
+                  className="w-full rounded-lg border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 text-black pl-10"
+                />
+                <ClockIcon className="absolute left-3 top-1/2 transform -translate-y-1/2 h-5 w-5 text-gray-400" />
+              </div>
+              <TimeAdjustChips field="start_time" />
+            </div>
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-1">
+                종료 시간
+              </label>
+              <div className="relative">
+                <input
+                  type="time"
+                  value={workLog.end_time}
+                  onChange={(e) => handleTimeChange('end_time', e.target.value)}
+                  className="w-full rounded-lg border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 text-black pl-10"
+                />
+                <ClockIcon className="absolute left-3 top-1/2 transform -translate-y-1/2 h-5 w-5 text-gray-400" />
+              </div>
+              <TimeAdjustChips field="end_time" />
+            </div>
+            <div className="md:col-span-2">
+              <label className="block text-sm font-medium text-gray-700 mb-1">
                 업무 내용
               </label>
               <textarea
                 value={workLog.description}
                 onChange={(e) => setWorkLog({ ...workLog, description: e.target.value })}
-                rows={2}
-                className="w-full rounded-md border-2 border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 text-black hover:border-gray-400"
+                rows={4}
+                className="w-full rounded-lg border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 text-black"
                 placeholder="업무 내용을 입력하세요"
               />
             </div>
@@ -296,12 +293,12 @@ function EditWorkLogPage({ params }: Props) {
         </div>
       </div>
 
-      <div className="fixed bottom-0 left-0 right-0 h-16 bg-white border-t border-gray-200 px-4 flex items-center justify-center">
+      <div className="fixed bottom-4 left-0 right-0 px-4 flex items-center justify-center">
         <button
           onClick={handleSubmit}
-          className="w-full max-w-md h-12 flex items-center justify-center bg-blue-600 text-white rounded-lg shadow hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 transition-colors duration-200"
+          className="w-full max-w-md h-14 flex items-center justify-center bg-blue-600 text-white rounded-full shadow-lg hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 transition-colors duration-200"
         >
-          <span className="text-base font-medium">수정하기</span>
+          <span className="text-lg font-medium">수정 완료</span>
         </button>
       </div>
     </div>
@@ -309,3 +306,4 @@ function EditWorkLogPage({ params }: Props) {
 }
 
 export default withAuth(EditWorkLogPage)
+
