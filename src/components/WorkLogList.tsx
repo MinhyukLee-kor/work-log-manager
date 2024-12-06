@@ -107,9 +107,9 @@ export default function WorkLogList({ workLogs, loading, dateRange }: WorkLogLis
 
   return (
     <div className="bg-white shadow-md rounded-lg overflow-hidden">
-      <div className="overflow-x-auto">
+      <div className="overflow-auto" style={{ height: 'calc(100vh - 400px)' }}>
         <table className="min-w-full divide-y divide-gray-200">
-          <thead className="bg-gray-50">
+          <thead className="bg-gray-50 sticky top-0 z-10">
             <tr>
               <th scope="col" className="px-1 py-1 text-center text-xs font-medium text-gray-500 uppercase tracking-wider">날짜</th>
               <th scope="col" className="hidden md:table-cell px-1 py-1 text-center text-xs font-medium text-gray-500 uppercase tracking-wider">시간</th>
@@ -122,7 +122,11 @@ export default function WorkLogList({ workLogs, loading, dateRange }: WorkLogLis
             {Object.entries(groupedLogs).map(([date, logs]) => (
               <React.Fragment key={date}>
                 {logs.map((log, index) => (
-                  <tr key={log.id} className="text-center hover:bg-gray-50 transition-colors duration-150 ease-in-out">
+                  <tr 
+                    key={log.id} 
+                    className={`text-center hover:bg-gray-50 transition-colors duration-150 ease-in-out
+                      ${index === 0 ? 'border-t-2 border-gray-300' : ''}`}
+                  >
                     <td className="px-1 py-1 whitespace-nowrap text-sm text-gray-900">
                       {index === 0 ? (
                         <div>
