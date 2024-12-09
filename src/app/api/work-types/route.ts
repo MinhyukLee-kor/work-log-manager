@@ -18,21 +18,11 @@ export async function GET() {
       database: process.env.DB_NAME
     })
 
-    const [rows] = await connection.execute<WorkTypeRow[]>(`
-      SELECT 'P' AS BIZ_TP, X1.프로젝트_ID AS BIZ_CD, X1.프로젝트명 AS BIZ_NM
-      FROM 프로젝트_TBL X1
-      WHERE DATE_FORMAT(now(), '%Y-%m-%d') BETWEEN X1.실투입기간_시작 AND X1.실투입기간_종료
-      UNION ALL
-      SELECT 'C' AS BIZ_TP, 'C001' AS BIZ_CD, '출장' AS BIZ_NM
-      UNION ALL
-      SELECT 'C' AS BIZ_TP, 'C002' AS BIZ_CD, '교육' AS BIZ_NM
-      UNION ALL
-      SELECT 'C' AS BIZ_TP, 'C003' AS BIZ_CD, '기타외부활동' AS BIZ_NM
-    `)
+    const [rows] = await connection.execute<WorkTypeRow[]>('CALL select_timsheet_bizcode()')
 
     return NextResponse.json({ 
       success: true, 
-      workTypes: rows
+      workTypes: rows[0]
     })
   } catch (error) {
     console.error('업무 종류 조회 에러:', error)
