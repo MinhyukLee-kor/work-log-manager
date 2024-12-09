@@ -42,7 +42,13 @@ function CreateWorkLogPage() {
   useEffect(() => {
     const fetchWorkTypes = async () => {
       try {
-        const response = await axios.get('/worklog/api/work-types')
+        const response = await axios.get('/worklog/api/work-types', {
+          headers: {
+            'Cache-Control': 'no-cache',
+            'Pragma': 'no-cache',
+            'Expires': '0',
+          }
+        })
         if (response.data.success) {
           setWorkTypes(response.data.workTypes)
         }

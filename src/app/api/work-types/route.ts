@@ -2,6 +2,9 @@ import { NextResponse } from 'next/server'
 import mysql from 'mysql2/promise'
 import { RowDataPacket } from 'mysql2'
 
+export const dynamic = 'force-dynamic'  // 캐시 방지
+export const revalidate = 0  // 캐시 방지
+
 interface WorkTypeRow extends RowDataPacket {
   BIZ_TP: string;
   BIZ_CD: string;
@@ -23,6 +26,11 @@ export async function GET() {
     return NextResponse.json({ 
       success: true, 
       workTypes: rows[0]
+    }, {
+      headers: {
+        'Cache-Control': 'no-store, no-cache, must-revalidate',
+        'Pragma': 'no-cache'
+      }
     })
   } catch (error) {
     console.error('업무 종류 조회 에러:', error)
