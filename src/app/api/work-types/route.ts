@@ -21,11 +21,11 @@ export async function GET() {
       database: process.env.DB_NAME
     })
 
-    const [rows] = await connection.execute<WorkTypeRow[]>('CALL select_timsheet_bizcode()')
+    const [rows] = await connection.execute<WorkTypeRow[]>('select BIZ_TP, BIZ_CD, BIZ_NM from vw_timsheet_bizcode')
 
     return NextResponse.json({ 
       success: true, 
-      workTypes: rows[0]
+      workTypes: rows
     }, {
       headers: {
         'Cache-Control': 'no-store, no-cache, must-revalidate',

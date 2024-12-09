@@ -14,6 +14,7 @@ interface WorkLog {
   description: string
   bizType: string
   bizCode: string
+  bizName: string
 }
 
 interface WorkLogListProps {
@@ -111,11 +112,11 @@ export default function WorkLogList({ workLogs, loading, dateRange }: WorkLogLis
         <table className="min-w-full divide-y divide-gray-200">
           <thead className="bg-gray-200 sticky top-0 z-10">
             <tr>
-              <th scope="col" className="px-1 py-1 text-center text-xs font-medium text-gray-500 uppercase tracking-wider">날짜</th>
-              <th scope="col" className="hidden md:table-cell px-1 py-1 text-center text-xs font-medium text-gray-500 uppercase tracking-wider">시간</th>
+              <th scope="col" className="px-1 py-1 text-center text-xs font-medium text-gray-500 uppercase tracking-wider w-[80px]">날짜</th>
+              <th scope="col" className="hidden md:table-cell px-1 py-1 text-center text-xs font-medium text-gray-500 uppercase tracking-wider w-[100px]">시간</th>
               <th scope="col" className="px-1 py-1 text-center text-xs font-medium text-gray-500 uppercase tracking-wider">업무</th>
-              <th scope="col" className="px-1 py-1 text-center text-xs font-medium text-gray-500 uppercase tracking-wider">업무 내용</th>
-              <th scope="col" className="px-1 py-1 text-center text-xs font-medium text-gray-500 uppercase tracking-wider">작업</th>
+              <th scope="col" className="px-1 py-1 text-center text-xs font-medium text-gray-500 uppercase tracking-widerw-[100px]">업무 내용</th>
+              <th scope="col" className="px-1 py-1 text-center text-xs font-medium text-gray-500 uppercase tracking-wider w-[80px]">작업</th>
             </tr>
           </thead>
           <tbody className="bg-white divide-y divide-gray-200">
@@ -127,7 +128,7 @@ export default function WorkLogList({ workLogs, loading, dateRange }: WorkLogLis
                     className={`text-center hover:bg-gray-50 transition-colors duration-150 ease-in-out
                       ${index === 0 ? 'border-t-2 border-gray-300' : ''}`}
                   >
-                    <td className="px-1 py-1 whitespace-nowrap text-sm text-gray-900">
+                    <td className="px-1 py-1 whitespace-nowrap text-sm text-gray-900 w-[80px]">
                       {index === 0 ? (
                         <div>
                           <div>{formatDate(log.date)}</div>
@@ -137,21 +138,21 @@ export default function WorkLogList({ workLogs, loading, dateRange }: WorkLogLis
                         </div>
                       ) : null}
                     </td>
-                    <td className="hidden md:table-cell px-1 py-1 whitespace-nowrap text-sm text-gray-500">
+                    <td className="hidden md:table-cell px-1 py-1 whitespace-nowrap text-sm text-gray-500 w-[100px]">
                       {log.start_time} - {log.end_time}
                     </td>
-                    <td className="px-1 py-1 whitespace-nowrap">
+                    <td className="px-1 py-1 whitespace-normal">
                       <div className="flex md:flex-row flex-col items-center justify-center gap-1">
                         <span className="px-1 inline-flex text-xs leading-5 font-semibold rounded-full bg-blue-100 text-blue-800 w-fit">
                           {log.bizType === 'P' ? '프로젝트' : '공통'}
                         </span>
-                        <span className="text-sm text-gray-500 md:ml-1">
-                          {log.bizCode}
+                        <span className="text-sm text-gray-500 md:ml-1 break-all md:line-clamp-none line-clamp-2">
+                          {log.bizName}
                         </span>
                       </div>
                     </td>
-                    <td className="px-1 py-1 text-sm text-gray-900">
-                      <div>{log.description}</div>
+                    <td className="px-1 py-1 text-sm text-gray-900 w-[100px]">
+                      <div className="line-clamp-2">{log.description}</div>
                       <div className="md:hidden text-xs text-gray-500 mt-1">
                         {log.start_time} - {log.end_time}
                       </div>

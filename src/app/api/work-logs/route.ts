@@ -20,19 +20,22 @@ export async function GET(request: Request) {
 
     const [rows] = await connection.execute(
       `SELECT 
-         TIMSHEET_MGR_ID as id,
-         LOGIN_ID as loginId,
-         DATE_FORMAT(ST_DTM, '%Y-%m-%d') as date,
-         DATE_FORMAT(ST_DTM, '%H:%i') as start_time,
-         DATE_FORMAT(ED_DTM, '%H:%i') as end_time,
-         BIZ_CD as bizCode,
-         BIZ_TP as bizType,
-         REMK as description
-       FROM CM_TIMESHEET_MGR 
-       WHERE LOGIN_ID = ? 
-       AND DATE(ST_DTM) >= ? 
-       AND DATE(ST_DTM) <= ?
-       ORDER BY DATE(ST_DTM) DESC, ST_DTM ASC`,
+         CTM.TIMSHEET_MGR_ID as id,
+         CTM.LOGIN_ID as loginId,
+         DATE_FORMAT(CTM.ST_DTM, '%Y-%m-%d') as date,
+         DATE_FORMAT(CTM.ST_DTM, '%H:%i') as start_time,
+         DATE_FORMAT(CTM.ED_DTM, '%H:%i') as end_time,
+         CTM.BIZ_CD as bizCode,
+         VT.BIZ_NM as bizName,
+         CTM.BIZ_TP as bizType,
+         CTM.REMK as description
+       FROM CM_TIMESHEET_MGR CTM
+       LEFT JOIN vw_timsheet_bizcode VT
+       ON CTM.BIZ_CD = VT.BIZ_CD
+       WHERE CTM.LOGIN_ID = ? 
+       AND DATE(CTM.ST_DTM) >= ? 
+       AND DATE(CTM.ST_DTM) <= ?
+       ORDER BY DATE(CTM.ST_DTM) DESC, CTM.ST_DTM ASC`,
       [Number(userId), startDate, endDate]
     )
 
