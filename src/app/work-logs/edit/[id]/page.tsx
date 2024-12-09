@@ -8,6 +8,7 @@ import { getSession } from '@/utils/auth'
 import { validateStartEndTime } from '@/utils/workTime'
 import { ArrowLeftIcon, ClockIcon, XMarkIcon } from '@heroicons/react/24/outline'
 import { motion } from 'framer-motion'
+import SearchableSelect from '@/components/SearchableSelect'
 
 interface WorkLog {
   id: string
@@ -290,28 +291,22 @@ function EditWorkLogPage({ params }: Props) {
               <label className="block text-sm font-medium text-gray-700 mb-1">
                 업무 종류 <span className="text-red-500">*</span>
               </label>
-              <select
+              <SearchableSelect
+                options={workTypes.map(type => ({
+                  value: type.BIZ_CD,
+                  label: type.BIZ_NM,
+                  type: type.BIZ_TP
+                }))}
                 value={workLog.bizCode}
-                onChange={(e) => {
-                  const selected = workTypes.find(t => t.BIZ_CD === e.target.value)
-                  if (selected) {
-                    setWorkLog({
-                      ...workLog,
-                      bizType: selected.BIZ_TP,
-                      bizCode: selected.BIZ_CD
-                    })
-                  }
+                onChange={(value, type) => {
+                  setWorkLog({
+                    ...workLog,
+                    bizType: type,
+                    bizCode: value
+                  })
                 }}
-                className={`${inputClass} [&>option]:text-black`}
-                required
-              >
-                <option value="">선택하세요</option>
-                {workTypes.map((type) => (
-                  <option key={type.BIZ_CD} value={type.BIZ_CD} className="text-black">
-                    {type.BIZ_NM}
-                  </option>
-                ))}
-              </select>
+                className="text-black"
+              />
             </div>
             <div className="md:col-span-2">
               <label className="block text-sm font-medium text-gray-700 mb-1">

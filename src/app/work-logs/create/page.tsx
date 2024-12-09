@@ -8,6 +8,7 @@ import axios from 'axios'
 import { getSession } from '@/utils/auth'
 import { validateTimeOverlaps, validateStartEndTime } from '@/utils/workTime'
 import { motion, AnimatePresence } from 'framer-motion'
+import SearchableSelect from '@/components/SearchableSelect'
 
 interface WorkType {
   BIZ_TP: string
@@ -278,42 +279,26 @@ function CreateWorkLogPage() {
                   <label className="block text-sm font-medium text-gray-700 mb-1">
                     업무 종류 <span className="text-red-500">*</span>
                   </label>
-                  <select
+                  <SearchableSelect
+                    options={workTypes.map(type => ({
+                      value: type.BIZ_CD,
+                      label: type.BIZ_NM,
+                      type: type.BIZ_TP
+                    }))}
                     value={log.bizCode}
-                    onChange={(e) => {
-                      const selected = workTypes.find(t => t.BIZ_CD === e.target.value)
-                      if (selected) {
-                        setWorkLogs(workLogs.map(wl => 
-                          wl.id === log.id 
-                            ? { 
-                                ...wl, 
-                                bizType: selected.BIZ_TP,
-                                bizCode: selected.BIZ_CD
-                              }
-                            : wl
-                        ))
-                      } else {
-                        setWorkLogs(workLogs.map(wl => 
-                          wl.id === log.id 
-                            ? { 
-                                ...wl, 
-                                bizType: '',
-                                bizCode: ''
-                              }
-                            : wl
-                        ))
-                      }
+                    onChange={(value, type) => {
+                      setWorkLogs(workLogs.map(wl => 
+                        wl.id === log.id 
+                          ? { 
+                              ...wl, 
+                              bizType: type,
+                              bizCode: value
+                            }
+                          : wl
+                      ))
                     }}
-                    className={`${inputClass} [&>option]:text-black`}
-                    required
-                  >
-                    <option value="">선택하세요</option>
-                    {workTypes.map((type) => (
-                      <option key={type.BIZ_CD} value={type.BIZ_CD} className="text-black">
-                        {type.BIZ_NM}
-                      </option>
-                    ))}
-                  </select>
+                    className="text-black"
+                  />
                 </div>
                 <div className="md:col-span-2">
                   <label className="block text-sm font-medium text-gray-700 mb-1">
