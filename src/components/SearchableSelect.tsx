@@ -57,9 +57,9 @@ export default function SearchableSelect({
             setTimeout(() => inputRef.current?.focus(), 100)
           }
         }}
-        className={`flex items-center justify-between w-full rounded-lg border-2 border-gray-200 bg-white cursor-pointer h-[30px] px-3 ${className}`}
+        className={`flex items-center justify-between w-full rounded-lg border-2 border-gray-200 bg-white cursor-pointer h-[42px] px-3 ${className}`}
       >
-        <span className="text-gray-700 truncate">
+        <span className="text-gray-900 truncate">
           {selectedOption ? selectedOption.label : placeholder}
         </span>
         <ChevronUpDownIcon className="h-5 w-5 text-gray-400 flex-shrink-0" />
@@ -79,7 +79,7 @@ export default function SearchableSelect({
                 type="text"
                 value={searchTerm}
                 onChange={(e) => setSearchTerm(e.target.value)}
-                className="w-full px-3 py-2 border border-gray-200 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 text-sm"
+                className="w-full px-3 py-2 border border-gray-200 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 text-gray-900 text-sm"
                 placeholder="검색..."
                 onClick={(e) => e.stopPropagation()}
               />
@@ -93,7 +93,7 @@ export default function SearchableSelect({
                       onChange(option.value, option.type)
                       setIsOpen(false)
                     }}
-                    className={`px-3 py-2 cursor-pointer hover:bg-blue-50 ${
+                    className={`px-3 py-2 cursor-pointer hover:bg-blue-50 text-gray-900 ${
                       option.value === value ? 'bg-blue-50' : ''
                     }`}
                   >

@@ -190,7 +190,7 @@ function CreateWorkLogPage() {
     </div>
   )
 
-  const inputClass = "w-full rounded-lg border-2 border-gray-200 shadow-sm focus:border-blue-500 focus:ring-blue-500 text-black"
+  const inputClass = "w-full rounded-lg border-2 border-gray-200 shadow-sm focus:border-blue-500 focus:ring-blue-500 text-black h-[42px]"
 
   const containerVariants = {
     hidden: { opacity: 0 },
