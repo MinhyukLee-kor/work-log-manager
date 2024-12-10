@@ -66,21 +66,21 @@ export async function POST(request: Request) {
       }, { status: 401 })
     }
 
-    // 로그인 시간 업데이트
-    await connection.execute(
-      `UPDATE 사용자_TBL 
-       SET update_date = NOW(),
-           update_user = ?
-       WHERE 사용자_ID = ?`,
-      [user.사용자_ID, user.사용자_ID]
-    )
+    // // 로그인 시간 업데이트
+    // await connection.execute(
+    //   `UPDATE 사용자_TBL 
+    //    SET update_date = NOW(),
+    //        update_user = ?
+    //    WHERE 사용자_ID = ?`,
+    //   [user.사용자_ID, user.사용자_ID]
+    // )
 
-    // 로그인 로그 기록
-    await connection.execute(
-      `INSERT INTO login_logs(user_id, ip_address) 
-       VALUES (?, ?)`,
-      [user.사용자_ID, getClientIP(request)]
-    )
+    // // 로그인 로그 기록
+    // await connection.execute(
+    //   `INSERT INTO login_logs(user_id, ip_address) 
+    //    VALUES (?, ?)`,
+    //   [user.사용자_ID, getClientIP(request)]
+    // )
 
     return NextResponse.json({
       success: true,
