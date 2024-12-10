@@ -183,7 +183,7 @@ function EditWorkLogPage({ params }: Props) {
   );
 
   // input 필드들의 공통 클래스
-  const inputClass = "w-full rounded-lg border-2 border-gray-200 shadow-sm focus:border-blue-500 focus:ring-blue-500 text-black h-[42px]"
+  const inputClass = "w-full rounded-lg border-2 border-gray-200 shadow-sm focus:border-blue-500 focus:ring-blue-500 text-black"
 
   const containerVariants = {
     hidden: { opacity: 0 },
@@ -254,7 +254,7 @@ function EditWorkLogPage({ params }: Props) {
                 type="date"
                 value={workLog.date}
                 onChange={(e) => setWorkLog({ ...workLog, date: e.target.value })}
-                className={inputClass}
+                className={`${inputClass} h-[42px]`}
               />
             </div>
             <div>
@@ -315,7 +315,7 @@ function EditWorkLogPage({ params }: Props) {
               <textarea
                 value={workLog.description}
                 onChange={(e) => setWorkLog({ ...workLog, description: e.target.value })}
-                className={`${inputClass} h-[130px] resize-none`}
+                className={`${inputClass} h-[130px] resize-none py-2`}
                 placeholder="업무 내용을 입력하세요"
               />
             </div>

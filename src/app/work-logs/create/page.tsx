@@ -140,7 +140,7 @@ function CreateWorkLogPage() {
         router.push('/dashboard');
       }
     } catch (error: any) {
-      console.error('업무 등록 에��:', error);
+      console.error('업무 등록 에러:', error);
       alert(error.response?.data?.message || '업무 등록 중 오류가 발생했습니다.');
     }
   };
@@ -190,7 +190,7 @@ function CreateWorkLogPage() {
     </div>
   )
 
-  const inputClass = "w-full rounded-lg border-2 border-gray-200 shadow-sm focus:border-blue-500 focus:ring-blue-500 text-black h-[42px]"
+  const inputClass = "w-full rounded-lg border-2 border-gray-200 shadow-sm focus:border-blue-500 focus:ring-blue-500 text-black"
 
   const containerVariants = {
     hidden: { opacity: 0 },
@@ -254,7 +254,7 @@ function CreateWorkLogPage() {
                     type="date"
                     value={log.date}
                     onChange={(e) => updateEntry(log.id, 'date', e.target.value)}
-                    className={inputClass}
+                    className={`${inputClass} h-[42px]`}
                   />
                 </div>
                 <div>
@@ -265,7 +265,7 @@ function CreateWorkLogPage() {
                     type="time"
                     value={log.start_time}
                     onChange={(e) => updateEntry(log.id, 'start_time', e.target.value)}
-                    className={inputClass}
+                    className={`${inputClass} h-[42px]`}
                   />
                   <TimeAdjustChips logId={log.id} field="start_time" />
                 </div>
@@ -277,7 +277,7 @@ function CreateWorkLogPage() {
                     type="time"
                     value={log.end_time}
                     onChange={(e) => updateEntry(log.id, 'end_time', e.target.value)}
-                    className={inputClass}
+                    className={`${inputClass} h-[42px]`}
                   />
                   <TimeAdjustChips logId={log.id} field="end_time" />
                 </div>
@@ -313,7 +313,7 @@ function CreateWorkLogPage() {
                   <textarea
                     value={log.description}
                     onChange={(e) => updateEntry(log.id, 'description', e.target.value)}
-                    className={`${inputClass} h-[130px] resize-none`}
+                    className={`${inputClass} h-[130px] resize-none py-2`}
                     placeholder="업무 내용을 입력하세요"
                   />
                 </div>
