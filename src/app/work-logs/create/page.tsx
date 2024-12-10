@@ -33,7 +33,7 @@ function CreateWorkLogPage() {
     id: '1',
     date: new Date().toISOString().split('T')[0],
     start_time: '09:00',
-    end_time: '09:00',
+    end_time: '18:00',
     description: '',
     bizType: '',
     bizCode: ''
@@ -67,7 +67,7 @@ function CreateWorkLogPage() {
         id: Date.now().toString(),
         date: workLogs[0].date,
         start_time: '09:00',
-        end_time: '09:00',
+        end_time: '18:00',
         description: '',
         bizType: '',
         bizCode: ''
@@ -140,7 +140,7 @@ function CreateWorkLogPage() {
         router.push('/dashboard');
       }
     } catch (error: any) {
-      console.error('업무 등록 에러:', error);
+      console.error('업무 등록 에��:', error);
       alert(error.response?.data?.message || '업무 등록 중 오류가 발생했습니다.');
     }
   };
@@ -313,8 +313,7 @@ function CreateWorkLogPage() {
                   <textarea
                     value={log.description}
                     onChange={(e) => updateEntry(log.id, 'description', e.target.value)}
-                    rows={3}
-                    className={`${inputClass} resize-none`}
+                    className={`${inputClass} h-[130px] resize-none`}
                     placeholder="업무 내용을 입력하세요"
                   />
                 </div>

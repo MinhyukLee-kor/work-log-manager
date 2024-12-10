@@ -315,8 +315,7 @@ function EditWorkLogPage({ params }: Props) {
               <textarea
                 value={workLog.description}
                 onChange={(e) => setWorkLog({ ...workLog, description: e.target.value })}
-                rows={4}
-                className={`${inputClass} resize-none`}
+                className={`${inputClass} h-[130px] resize-none`}
                 placeholder="업무 내용을 입력하세요"
               />
             </div>
