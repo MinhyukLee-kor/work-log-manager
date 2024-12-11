@@ -114,8 +114,8 @@ export default function WorkLogList({ workLogs, loading, dateRange }: WorkLogLis
             <tr>
               <th scope="col" className="px-1 py-1 text-center text-xs font-medium text-gray-500 uppercase tracking-wider w-[80px]">날짜</th>
               <th scope="col" className="hidden md:table-cell px-1 py-1 text-center text-xs font-medium text-gray-500 uppercase tracking-wider w-[100px]">시간</th>
-              <th scope="col" className="px-1 py-1 text-center text-xs font-medium text-gray-500 uppercase tracking-wider">업무</th>
-              <th scope="col" className="px-1 py-1 text-center text-xs font-medium text-gray-500 uppercase tracking-widerw-[100px]">업무 내용</th>
+              <th scope="col" className="px-1 py-1 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">업무</th>
+              <th scope="col" className="px-1 py-1 text-left text-xs font-medium text-gray-500 uppercase tracking-widerw-[100px]">업무 내용</th>
               <th scope="col" className="px-1 py-1 text-center text-xs font-medium text-gray-500 uppercase tracking-wider w-[80px]">작업</th>
             </tr>
           </thead>
@@ -142,7 +142,7 @@ export default function WorkLogList({ workLogs, loading, dateRange }: WorkLogLis
                       {log.start_time} - {log.end_time}
                     </td>
                     <td className="px-1 py-1 whitespace-normal">
-                      <div className="flex md:flex-row flex-col items-center justify-center gap-1">
+                      <div className="flex md:flex-row flex-col items-start justify-start gap-1">
                         <span className="px-1 inline-flex text-xs leading-5 font-semibold rounded-full bg-blue-100 text-blue-800 w-fit">
                           {log.bizType === 'P' ? '프로젝트' : '공통'}
                         </span>
@@ -151,7 +151,7 @@ export default function WorkLogList({ workLogs, loading, dateRange }: WorkLogLis
                         </span>
                       </div>
                     </td>
-                    <td className="px-1 py-1 text-sm text-gray-900 w-[100px]">
+                    <td className="px-1 py-1 text-sm text-gray-900 text-left">
                       <div className="line-clamp-2">{log.description}</div>
                       <div className="md:hidden text-xs text-gray-500 mt-1">
                         {log.start_time} - {log.end_time}
