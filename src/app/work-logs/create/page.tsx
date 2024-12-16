@@ -9,6 +9,7 @@ import { getSession } from '@/utils/auth'
 import { validateTimeOverlaps, validateStartEndTime } from '@/utils/workTime'
 import { motion, AnimatePresence } from 'framer-motion'
 import SearchableSelect from '@/components/SearchableSelect'
+import NoticePanel from '@/components/NoticePanel'
 
 interface WorkType {
   BIZ_TP: string
@@ -235,6 +236,13 @@ function CreateWorkLogPage() {
       </motion.div>
 
       <div className="max-w-3xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
+        <motion.div
+          variants={itemVariants}
+          className="mb-6"
+        >
+          <NoticePanel />
+        </motion.div>
+
         <AnimatePresence>
           {workLogs.map((log, index) => (
             <motion.div

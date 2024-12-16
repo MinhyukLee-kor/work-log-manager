@@ -9,6 +9,7 @@ import { validateStartEndTime } from '@/utils/workTime'
 import { ArrowLeftIcon, ClockIcon, XMarkIcon } from '@heroicons/react/24/outline'
 import { motion } from 'framer-motion'
 import SearchableSelect from '@/components/SearchableSelect'
+import NoticePanel from '@/components/NoticePanel'
 
 interface WorkLog {
   id: string
@@ -241,6 +242,13 @@ function EditWorkLogPage({ params }: Props) {
       </motion.div>
 
       <div className="max-w-3xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
+        <motion.div
+          variants={itemVariants}
+          className="mb-6"
+        >
+          <NoticePanel />
+        </motion.div>
+
         <motion.div
           variants={itemVariants}
           className="bg-white rounded-xl shadow-sm p-6 border"
